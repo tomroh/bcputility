@@ -202,6 +202,12 @@ bcpImport <- function(x,
 #'
 #' character separator for rows--new lines
 #'
+#' @param datatypes
+#'
+#' the format of datatypes,
+#' char performs the operation using a character data type,
+#' nchar performs the bulk copy operation using Unicode characters
+#'
 #' @param ...
 #'
 #' arguments to pass \link[base]{system2}
@@ -218,15 +224,21 @@ bcpExport <- function(file,
                       password,
                       fieldterminator = '\t',
                       rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
+                      datatypes = c('char', 'nchar'),
                       ...) {
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
   } else {
     bcpArgs <- list('-U', username, '-P', password)
   }
+  datatypes <- match.arg(datatypes)
+  if ( datatypes == 'char' ) {
+    bcpArgs <- append(bcpArgs, list('-c'))
+  } else {
+    bcpArgs <- append(bcpArgs, list('-w'))
+  }
   bcpArgs <- append(bcpArgs,
                     list(
-                      '-c',
                       '-t', shQuote(fieldterminator),
                       '-r', shQuote(rowterminator)
                     )

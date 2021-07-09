@@ -15,6 +15,7 @@ bcpExport(
   password,
   fieldterminator = "\\t",
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
+  datatypes = c("char", "nchar"),
   ...
 )
 }
@@ -39,6 +40,10 @@ table is specified.}
 \item{fieldterminator}{character separator for columns}
 
 \item{rowterminator}{character separator for rows--new lines}
+
+\item{datatypes}{the format of datatypes,
+char performs the operation using a character data type,
+nchar performs the bulk copy operation using Unicode characters}
 
 \item{...}{arguments to pass \link[base]{system2}}
 }
