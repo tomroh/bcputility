@@ -3,3 +3,4 @@
 ^LICENSE\.md$
 ^inst/benchmarks$
 ^cran-comments\.md$
+^\.github$
