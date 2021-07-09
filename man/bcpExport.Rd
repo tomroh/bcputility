@@ -51,3 +51,14 @@ nchar performs the bulk copy operation using Unicode characters}
 A wrapper for a system call to the bcp utility which writes a SQL Server
 table or query (T-SQL) to a file.
 }
+\examples{
+\dontrun{
+bcpExport('myfile.tsv',
+          server = server,
+          database = database,
+          table = 'mytable',
+          fieldterminator = '|',
+          stdout = FALSE,
+          datatypes = 'char')
+}
+}

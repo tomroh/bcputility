@@ -73,3 +73,18 @@ will be deleted and the schema is inferred from \code{DBI::dbCreateTable}. To
 use a customized schema, create the schema before calling the function and
 use \code{overwrite=FALSE}.
 }
+\examples{
+\dontrun{
+set.seed(33)
+x <- data.frame(
+  w = rpois(10, 10),
+  x = rnorm(10),
+  y = sample(LETTERS, 10),
+  z = Sys.time()
+)
+bcpImport(x,
+          server = server,
+          database = database,
+          table = 'mytable')
+}
+}

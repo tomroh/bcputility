@@ -1,6 +1,6 @@
 Package: bcputility
 Type: Package
-Title: Wrapper for SQL Server bcp utility
+Title: Wrapper for SQL Server Bcp Utility
 Version: 0.1.0
 Authors@R: person("Thomas", "Roh", email = "thomas@roh.engineering", role = c("aut", "cre"))
 Description: Provides functions to utilize a command line utility that does bulk inserts and exports from SQL Server databases. 

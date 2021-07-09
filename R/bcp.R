@@ -83,6 +83,20 @@
 #'
 #' @export
 #'
+#' @examples
+#' \dontrun{
+#' set.seed(33)
+#' x <- data.frame(
+#'   w = rpois(10, 10),
+#'   x = rnorm(10),
+#'   y = sample(LETTERS, 10),
+#'   z = Sys.time()
+#' )
+#' bcpImport(x,
+#'           server = server,
+#'           database = database,
+#'           table = 'mytable')
+#' }
 bcpImport <- function(x,
                       server,
                       database,
@@ -214,6 +228,16 @@ bcpImport <- function(x,
 #'
 #' @export
 #'
+#' @examples
+#' \dontrun{
+#' bcpExport('myfile.tsv',
+#'           server = server,
+#'           database = database,
+#'           table = 'mytable',
+#'           fieldterminator = '|',
+#'           stdout = FALSE,
+#'           datatypes = 'char')
+#' }
 bcpExport <- function(file,
                       server,
                       database,
