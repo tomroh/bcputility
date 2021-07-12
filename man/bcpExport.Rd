@@ -47,6 +47,10 @@ nchar performs the bulk copy operation using Unicode characters}
 
 \item{...}{arguments to pass \link[base]{system2}}
 }
+\value{
+No return value. Operations from bcp are printed to console; see
+\code{...} to redirect output
+}
 \description{
 A wrapper for a system call to the bcp utility which writes a SQL Server
 table or query (T-SQL) to a file.

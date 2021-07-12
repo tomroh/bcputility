@@ -1,3 +1,9 @@
+## Resubmission 
+
+To address the reviewers comments:
+
+* bcpImport and bcpExport now have a documented return value
+
 ## Test environments
 * local R installation, R 4.1.0
 * macOS-latest (release)

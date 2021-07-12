@@ -4,3 +4,4 @@
 ^inst/benchmarks$
 ^cran-comments\.md$
 ^\.github$
+^CRAN-RELEASE$
