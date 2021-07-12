@@ -81,6 +81,11 @@
 #' use a customized schema, create the schema before calling the function and
 #' use \code{overwrite=FALSE}.
 #'
+#' @return
+#'
+#' No return value. Operations from bcp are printed to console; see
+#' \code{...} to redirect output
+#'
 #' @export
 #'
 #' @examples
@@ -226,7 +231,13 @@ bcpImport <- function(x,
 #'
 #' arguments to pass \link[base]{system2}
 #'
+#' @return
+#'
+#' No return value. Operations from bcp are printed to console; see
+#' \code{...} to redirect output
+#'
 #' @export
+#'
 #'
 #' @examples
 #' \dontrun{
