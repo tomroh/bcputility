@@ -8,4 +8,4 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 SystemRequirements: bcp Utility
-Imports: data.table, DBI, odbc
+Imports: data.table, DBI, odbc, sf
