@@ -27,7 +27,7 @@ improve performance over other methods.
 You can install the released version of bcputility from 
 [CRAN](https://CRAN.R-project.org) with:
 
-``` r
+```r
 install.packages("bcputility")
 ```
 
@@ -45,7 +45,7 @@ improved.
 
 ### Import
 
-``` r
+```r
 library(DBI)
 library(data.table)
 library(nycflights13)
@@ -109,7 +109,7 @@ decreased the performance of "[data.table](https://rdatatable.gitlab.io/data.tab
 Optimized write formats for date times from ```fwrite``` outperforms *bcp* for 
 data that is small enough to be pulled into memory.
 
-``` r
+```r
 exportResults <- microbenchmark::microbenchmark(
   bcpExportChar = {
     bcpExport('test1.csv',
@@ -146,9 +146,9 @@ exportResults <- microbenchmark::microbenchmark(
 
 *Time in seconds*
 
-### Export Query Benchmarks
+### Export Query
 
-``` r
+```r
 queryResults <- microbenchmark::microbenchmark(
   bcpExportQueryChar = {
     bcpExport('test4.csv',
@@ -182,5 +182,105 @@ queryResults <- microbenchmark::microbenchmark(
 |bcpExportQueryChar  | 2.330189| 2.335963| 2.777578| 2.444756| 3.010092| 4.892223|    30|
 |bcpExportQueryNchar | 2.666880| 2.777737| 3.435565| 2.789167| 3.443354| 7.774271|    30|
 |fwriteQuery         | 3.384254| 3.572138| 4.285159| 3.904367| 4.361619| 8.017063|    30|
+
+*Time in seconds*
+
+### Import Geometry
+
+Importing spatial data from 'sf' objects is also supported. The sql statements 
+after import are to produce equivalent tables in the database.
+
+```r
+library(sf)
+nc <- st_read(system.file("gpkg/nc.gpkg", package = "sf"))
+nc <- nc[sample.int(nrow(nc), 10000, replace = TRUE),]
+microbenchmark::microbenchmark(
+  bcpImportGeometry = {
+    bcpImport(nc,
+              server = server,
+              database = database,
+              table = 'nc1',
+              overwrite = TRUE,
+              stdout = FALSE)
+    con <- DBI::dbConnect(odbc::odbc(),
+                          driver = 'SQL Server',
+                          server = server,
+                          database = database)
+    sql <- DBI::sqlInterpolate(
+      con,
+      'alter table dbo.nc1 add ObjectID integer primary key identity(1,1);
+       create spatial index nc1_spix on nc1(geom)
+       with ( bounding_box = ( ?xmin, ?ymin, ?xmax, ?ymax ),
+              grids = (medium, medium, medium, medium),
+              cells_per_object = 16);',
+      .dots = st_bbox(nc)
+    )
+    DBI::dbExecute(con, sql)
+  },
+  bcpImportGeography = {
+    bcpImport(nc,
+              server = server,
+              database = database,
+              table = 'nc2',
+              overwrite = TRUE,
+              stdout = FALSE,
+              spatialtype = 'geography')
+    con <- DBI::dbConnect(odbc::odbc(),
+                          driver = 'SQL Server',
+                          server = server,
+                          database = database)
+    sql <- 'alter table dbo.nc2 add ObjectID integer primary key identity(1,1);
+            create spatial index nc2_spix on nc2(geom)
+            using geography_grid
+            with ( grids = (medium, medium, medium, medium),
+                   cells_per_object = 16);'
+    DBI::dbExecute(con, sql)
+  },
+  stWriteGeometry = {
+    Sys.setenv('MSSQLSPATIAL_USE_GEOMETRY_COLUMNS' = 'NO')
+    st_write(nc,
+             sprintf(r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)',
+                     server, database),
+             'dbo.nc3',
+             layer_options = c('GEOM_TYPE=geometry', 'LAUNDER=NO',
+                               'GEOMETRY_NAME=geom', 'FID=ObjectID'),
+             append = FALSE)
+    con <- DBI::dbConnect(odbc::odbc(),
+                          driver = 'SQL Server',
+                          server = server,
+                          database = database)
+    DBI::dbExecute(con,
+                   'alter table dbo.nc3 alter column [NAME] varchar(255);
+                    alter table dbo.nc3 alter column [FIPS] varchar(255);')
+    },
+  stWriteGeography = {
+    Sys.setenv('MSSQLSPATIAL_USE_GEOMETRY_COLUMNS' = 'NO')
+    st_write(nc,
+             sprintf(r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)',
+                     server, database),
+             'dbo.nc4',
+             layer_options = c('GEOM_TYPE=geography', 'LAUNDER=NO',
+                               'GEOMETRY_NAME=geom', 'FID=ObjectID'),
+             append = FALSE)
+    con <- DBI::dbConnect(odbc::odbc(),
+                          driver = 'SQL Server',
+                          server = server,
+                          database = database)
+    DBI::dbExecute(con,
+                   'alter table dbo.nc4 alter column [NAME] varchar(255);
+                    alter table dbo.nc4 alter column [FIPS] varchar(255);
+                    update dbo.nc4 SET geom = geom.MakeValid().ReorientObject()
+                    where geom.MakeValid().EnvelopeAngle() > 90;')
+  },
+  times = 30L
+)
+```
+
+|expr               |       min|        lq|      mean|    median|       uq|       max| neval|
+|:------------------|---------:|---------:|---------:|---------:|--------:|---------:|-----:|
+|bcpImportGeometry  |  3.837943|  4.029495|  4.167561|  4.108914|  4.28310|  4.617041|    30|
+|bcpImportGeography |  7.536671|  8.848857|  9.062659|  9.032125|  9.31301| 10.307236|    30|
+|stWriteGeometry    | 30.058039| 32.603264| 33.576270| 32.955545| 33.93374| 38.260181|    30|
+|stWriteGeography   | 51.733421| 54.910806| 56.157718| 55.671590| 56.51970| 64.666461|    30|
 
 *Time in seconds*

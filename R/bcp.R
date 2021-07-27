@@ -67,7 +67,8 @@
 #'
 #' @param spatialtype
 #'
-#' spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview}
+#' spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+#' ignored if \code{x} is not an 'sf' object
 #'
 #' @param ...
 #'
@@ -84,6 +85,11 @@
 #' will be deleted and the schema is inferred from \code{DBI::dbCreateTable}. To
 #' use a customized schema, create the schema before calling the function and
 #' use \code{overwrite=FALSE}.
+#'
+#' If x is a sf object, the geometry column is converted to binary and
+#' written to the database before conversion to geometry/geometry data type.
+#' The EPSG code is automatically read from the sf object and used as the
+#' SRID.
 #'
 #' @return
 #'
@@ -151,7 +157,7 @@ bcpImport <- function(x,
     if ( isSpatial ) {
       spatialtype <- match.arg(spatialtype)
       srid <- sf::st_crs(x)$epsg
-      if ( is.null(srid) ) {
+      if ( is.null(srid) | !is.numeric(srid) ) {
         stop('Only EPSGs are supported for SQL Server SRIDs. Check with sf::st_crs and change projection with sf::st_transform.')
       }
       geometryCol <- attr(x, 'sf_column')
@@ -163,6 +169,7 @@ bcpImport <- function(x,
     data.table::fwrite(x,
                        tmp,
                        sep = fieldterminator,
+                       eol = rowterminator,
                        col.names = FALSE,
                        dateTimeAs = 'write.csv')
   } else {
@@ -170,9 +177,9 @@ bcpImport <- function(x,
     tmp <- x
     # check data types
     x <- data.table::fread(tmp, nrows = 0)
-    bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
-                                    '-r', shQuote(rowterminator)))
   }
+  bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
+                                  '-r', shQuote(rowterminator)))
   bcpArgs <- append(bcpArgs, list(table,
                                   'in', shQuote(tmp),
                                   '-S', server,
@@ -197,18 +204,16 @@ bcpImport <- function(x,
   }
   #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '), sep = '\n')
   system2('bcp', args = bcpArgs, ...)
-
-  #TODO Figure out how to safely pass table names to prevent sql injection
   if ( isSpatial ) {
+    # quote with brackets for table name
+    # ignored when passing DBI::SQL('schema.table')
+    if ( !inherits(table, 'SQL') ) {
+      table <- DBI::SQL(sprintf('[%s]', table))
+    }
     DBI::dbExecute(
       con,
       sprintf('UPDATE %s SET [%s] = %s::STGeomFromWKB([%s], %s)',
               table, geometryCol, spatialtype, binaryCol, srid)
-    )
-    DBI::dbExecute(
-      con,
-      sprintf('ALTER TABLE %s DROP COLUMN [%s]',
-              table, binaryCol)
     )
     if ( spatialtype == 'geography' ) {
       DBI::dbExecute(
@@ -218,6 +223,11 @@ bcpImport <- function(x,
                 table, geometryCol, geometryCol, geometryCol)
       )
     }
+    invisible(DBI::dbExecute(
+      con,
+      sprintf('ALTER TABLE %s DROP COLUMN [%s]',
+              table, binaryCol)
+    ))
   }
 }
 
