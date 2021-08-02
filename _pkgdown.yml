@@ -1,0 +1,11 @@
+url: https://bcputility.roh.engineering
+authors:
+  Thomas Roh:
+    href: https://roh.engineering/about
+template:
+  params:
+    bootswatch: readable
+    opengraph:
+      twitter:
+        creator: "@rstatengineer"
+        card: summary_large_image

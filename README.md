@@ -1,5 +1,4 @@
-# bcputility
-
+# bcputility <a href='https://bcputility.roh.engineering'><img src='man/figures/logo.png' align="right" height="104" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/bcputility)](https://CRAN.R-project.org/package=bcputility)
