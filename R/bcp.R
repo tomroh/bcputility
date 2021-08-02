@@ -65,6 +65,11 @@
 #'
 #' Whether to overwrite the table if it exists
 #'
+#' @param spatialtype
+#'
+#' spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+#' ignored if \code{x} is not an 'sf' object
+#'
 #' @param ...
 #'
 #' arguments to pass to \link[base]{system2}
@@ -80,6 +85,11 @@
 #' will be deleted and the schema is inferred from \code{DBI::dbCreateTable}. To
 #' use a customized schema, create the schema before calling the function and
 #' use \code{overwrite=FALSE}.
+#'
+#' If x is a sf object, the geometry column is converted to binary and
+#' written to the database before conversion to geometry/geometry data type.
+#' The EPSG code is automatically read from the sf object and used as the
+#' SRID.
 #'
 #' @return
 #'
@@ -117,9 +127,10 @@ bcpImport <- function(x,
                       fieldterminator = '\t',
                       rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
                       overwrite = FALSE,
+                      spatialtype = c('geometry', 'geography'),
                       ...) {
   on.exit(DBI::dbDisconnect(con))
-  on.exit(file.remove(tmp), add = TRUE)
+  on.exit(unlink(tmp), add = TRUE)
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
     con <- DBI::dbConnect(odbc::odbc(),
@@ -140,20 +151,35 @@ bcpImport <- function(x,
                       '-c',
                       '-b', batchsize,
                       '-a', packetsize))
+  isSpatial <- inherits(x, 'sf')
   if ( inherits(x, 'data.frame') ) {
     tmp <- tempfile(fileext = '.dat')
+    if ( isSpatial ) {
+      spatialtype <- match.arg(spatialtype)
+      srid <- sf::st_crs(x)$epsg
+      if ( is.null(srid) | !is.numeric(srid) ) {
+        stop('Only EPSGs are supported for SQL Server SRIDs. Check with sf::st_crs and change projection with sf::st_transform.')
+      }
+      geometryCol <- attr(x, 'sf_column')
+      binaryCol <- sprintf('%sBinary', geometryCol)
+      x <- data.table::data.table(x)
+      x[[binaryCol]] <- sf::st_as_binary(x[[geometryCol]], hex = TRUE)
+      x[[geometryCol]] <- NA
+    }
     data.table::fwrite(x,
                        tmp,
-                       sep = '\t',
+                       sep = fieldterminator,
+                       eol = rowterminator,
                        col.names = FALSE,
                        dateTimeAs = 'write.csv')
   } else {
     stopifnot(file.exists(x))
     tmp <- x
+    # check data types
     x <- data.table::fread(tmp, nrows = 0)
-    bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
-                                    '-r', shQuote(rowterminator)))
   }
+  bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
+                                  '-r', shQuote(rowterminator)))
   bcpArgs <- append(bcpArgs, list(table,
                                   'in', shQuote(tmp),
                                   '-S', server,
@@ -161,17 +187,48 @@ bcpImport <- function(x,
   if ( regional ) {
     bcpArgs <- append(bcpArgs, list('-R'))
   }
+  dbTypes <- DBI::dbDataType(con, x)
+  if ( isSpatial ) {
+    dbTypes[[geometryCol]] <- spatialtype
+    dbTypes[[binaryCol]] <- 'varbinary(max)'
+  }
+
   if ( overwrite ) {
     if ( DBI::dbExistsTable(con, table) ) {
       DBI::dbRemoveTable(con, name = table)
     }
-    DBI::dbCreateTable(con, name = table, fields = x)
+    DBI::dbCreateTable(con, name = table, fields = dbTypes)
   }
   if ( !DBI::dbExistsTable(con, table) ) {
-    DBI::dbCreateTable(con, name = table, fields = x)
+    DBI::dbCreateTable(con, name = table, fields = dbTypes)
   }
   #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '), sep = '\n')
   system2('bcp', args = bcpArgs, ...)
+  if ( isSpatial ) {
+    # quote with brackets for table name
+    # ignored when passing DBI::SQL('schema.table')
+    if ( !inherits(table, 'SQL') ) {
+      table <- DBI::SQL(sprintf('[%s]', table))
+    }
+    DBI::dbExecute(
+      con,
+      sprintf('UPDATE %s SET [%s] = %s::STGeomFromWKB([%s], %s)',
+              table, geometryCol, spatialtype, binaryCol, srid)
+    )
+    if ( spatialtype == 'geography' ) {
+      DBI::dbExecute(
+        con,
+        sprintf('UPDATE %s SET [%s] = [%s].MakeValid().ReorientObject()
+                 WHERE [%s].MakeValid().EnvelopeAngle() > 90;',
+                table, geometryCol, geometryCol, geometryCol)
+      )
+    }
+    invisible(DBI::dbExecute(
+      con,
+      sprintf('ALTER TABLE %s DROP COLUMN [%s]',
+              table, binaryCol)
+    ))
+  }
 }
 
 

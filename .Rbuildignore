@@ -5,3 +5,7 @@
 ^cran-comments\.md$
 ^\.github$
 ^CRAN-RELEASE$
+^docs/
+_pkgdown.yml
+^pkgdown/
+^inst/tests$

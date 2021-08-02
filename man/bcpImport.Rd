@@ -20,6 +20,7 @@ bcpImport(
   fieldterminator = "\\t",
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
   overwrite = FALSE,
+  spatialtype = c("geometry", "geography"),
   ...
 )
 }
@@ -57,6 +58,9 @@ computer}
 
 \item{overwrite}{Whether to overwrite the table if it exists}
 
+\item{spatialtype}{spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+ignored if \code{x} is not an 'sf' object}
+
 \item{...}{arguments to pass to \link[base]{system2}}
 }
 \value{
@@ -76,6 +80,11 @@ If \code{overwrite} is \code{TRUE}, any existing table of the same name
 will be deleted and the schema is inferred from \code{DBI::dbCreateTable}. To
 use a customized schema, create the schema before calling the function and
 use \code{overwrite=FALSE}.
+
+If x is a sf object, the geometry column is converted to binary and
+written to the database before conversion to geometry/geometry data type.
+The EPSG code is automatically read from the sf object and used as the
+SRID.
 }
 \examples{
 \dontrun{
