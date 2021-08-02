@@ -4,7 +4,7 @@
 [![CRAN status](https://www.r-pkg.org/badges/version/bcputility)](https://CRAN.R-project.org/package=bcputility)
 [![R-CMD-check](https://github.com/tomroh/bcputility/workflows/R-CMD-check/badge.svg)](https://github.com/tomroh/bcputility/actions)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental-1)
-[![](http://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green)](https://cran.r-project.org/package=bcputility)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green)](https://cran.r-project.org/package=bcputility)
 <!-- badges: end -->
 
 
