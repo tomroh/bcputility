@@ -154,6 +154,7 @@ bcpImport <- function(x,
   isSpatial <- inherits(x, 'sf')
   if ( inherits(x, 'data.frame') ) {
     tmp <- tempfile(fileext = '.dat')
+    fileName <- tmp
     if ( isSpatial ) {
       spatialtype <- match.arg(spatialtype)
       srid <- sf::st_crs(x)$epsg
@@ -167,21 +168,21 @@ bcpImport <- function(x,
       x[[geometryCol]] <- NA
     }
     data.table::fwrite(x,
-                       tmp,
+                       fileName,
                        sep = fieldterminator,
                        eol = rowterminator,
                        col.names = FALSE,
                        dateTimeAs = 'write.csv')
   } else {
     stopifnot(file.exists(x))
-    tmp <- x
+    fileName <- x
     # check data types
-    x <- data.table::fread(tmp, nrows = 0)
+    x <- data.table::fread(fileName, nrows = 0)
   }
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
                                   '-r', shQuote(rowterminator)))
   bcpArgs <- append(bcpArgs, list(table,
-                                  'in', shQuote(tmp),
+                                  'in', shQuote(fileName),
                                   '-S', server,
                                   '-d', database), after = 0)
   if ( regional ) {
