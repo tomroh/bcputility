@@ -203,8 +203,12 @@ bcpImport <- function(x,
   if ( !DBI::dbExistsTable(con, table) ) {
     DBI::dbCreateTable(con, name = table, fields = dbTypes)
   }
-  #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '), sep = '\n')
-  system2('bcp', args = bcpArgs, ...)
+  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '), sep = '\n')
+  bcp <- 'bcp'
+  if ( !is.null(getOption('bcputility.bcp.path')) ) {
+    bcp <- getOption('bcputility.bcp.path')
+  }
+  system2(bcp, args = bcpArgs, ...)
   if ( isSpatial ) {
     # quote with brackets for table name
     # ignored when passing DBI::SQL('schema.table')
@@ -345,7 +349,11 @@ bcpExport <- function(file,
                                   outArg, shQuote(file),
                                   '-S', server,
                                   '-d', database), after = 0)
-  #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '))
-  system2('bcp', args = bcpArgs, ...)
+  bcp <- 'bcp'
+  if ( !is.null(getOption('bcputility.bcp.path')) ) {
+    bcp <- getOption('bcputility.bcp.path')
+  }
+  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '))
+  system2(bcp, args = bcpArgs, ...)
 }
 
