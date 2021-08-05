@@ -36,6 +36,13 @@ Install the development version with:
 devtools::install_github("tomroh/bcputility")
 ```
 
+If *bcp* is not on the system path or you want to override the default, 
+set the option with the full file path:
+
+```r
+options(bcputility.bcp.path = "<path-to-bcp>")
+```
+
 ## Benchmarks
 
 Benchmarks were performed with a local installation of SQL Server Express. 

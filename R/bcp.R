@@ -91,6 +91,9 @@
 #' The EPSG code is automatically read from the sf object and used as the
 #' SRID.
 #'
+#' To override the default path to the bcp command line utility, set the
+#' \code{bcputility.bcp.path} option.
+#'
 #' @return
 #'
 #' No return value. Operations from bcp are printed to console; see
