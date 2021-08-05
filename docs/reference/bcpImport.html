@@ -100,7 +100,12 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/tomroh/bcputility/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -115,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Import data to SQL Server</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/tomroh/bcputility/blob/master/R/bcp.R'><code>R/bcp.R</code></a></small>
     <div class="hidden name"><code>bcpImport.Rd</code></div>
     </div>
 
@@ -238,6 +243,8 @@ use <code>overwrite=FALSE</code>.</p>
 written to the database before conversion to geometry/geometry data type.
 The EPSG code is automatically read from the sf object and used as the
 SRID.</p>
+<p>To override the default path to the bcp command line utility, set the
+<code>bcputility.bcp.path</code> option.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>

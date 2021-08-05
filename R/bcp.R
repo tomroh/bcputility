@@ -91,6 +91,9 @@
 #' The EPSG code is automatically read from the sf object and used as the
 #' SRID.
 #'
+#' To override the default path to the bcp command line utility, set the
+#' \code{bcputility.bcp.path} option.
+#'
 #' @return
 #'
 #' No return value. Operations from bcp are printed to console; see
@@ -154,6 +157,7 @@ bcpImport <- function(x,
   isSpatial <- inherits(x, 'sf')
   if ( inherits(x, 'data.frame') ) {
     tmp <- tempfile(fileext = '.dat')
+    fileName <- tmp
     if ( isSpatial ) {
       spatialtype <- match.arg(spatialtype)
       srid <- sf::st_crs(x)$epsg
@@ -167,21 +171,21 @@ bcpImport <- function(x,
       x[[geometryCol]] <- NA
     }
     data.table::fwrite(x,
-                       tmp,
+                       fileName,
                        sep = fieldterminator,
                        eol = rowterminator,
                        col.names = FALSE,
                        dateTimeAs = 'write.csv')
   } else {
     stopifnot(file.exists(x))
-    tmp <- x
+    fileName <- x
     # check data types
-    x <- data.table::fread(tmp, nrows = 0)
+    x <- data.table::fread(fileName, nrows = 0)
   }
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
                                   '-r', shQuote(rowterminator)))
   bcpArgs <- append(bcpArgs, list(table,
-                                  'in', shQuote(tmp),
+                                  'in', shQuote(fileName),
                                   '-S', server,
                                   '-d', database), after = 0)
   if ( regional ) {
@@ -202,8 +206,12 @@ bcpImport <- function(x,
   if ( !DBI::dbExistsTable(con, table) ) {
     DBI::dbCreateTable(con, name = table, fields = dbTypes)
   }
-  #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '), sep = '\n')
-  system2('bcp', args = bcpArgs, ...)
+  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '), sep = '\n')
+  bcp <- 'bcp'
+  if ( !is.null(getOption('bcputility.bcp.path')) ) {
+    bcp <- getOption('bcputility.bcp.path')
+  }
+  system2(bcp, args = bcpArgs, ...)
   if ( isSpatial ) {
     # quote with brackets for table name
     # ignored when passing DBI::SQL('schema.table')
@@ -344,7 +352,11 @@ bcpExport <- function(file,
                                   outArg, shQuote(file),
                                   '-S', server,
                                   '-d', database), after = 0)
-  #cat(paste(append(bcpArgs, 'bcp', after = 0), collapse = ' '))
-  system2('bcp', args = bcpArgs, ...)
+  bcp <- 'bcp'
+  if ( !is.null(getOption('bcputility.bcp.path')) ) {
+    bcp <- getOption('bcputility.bcp.path')
+  }
+  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '))
+  system2(bcp, args = bcpArgs, ...)
 }
 

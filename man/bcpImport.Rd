@@ -85,6 +85,9 @@ If x is a sf object, the geometry column is converted to binary and
 written to the database before conversion to geometry/geometry data type.
 The EPSG code is automatically read from the sf object and used as the
 SRID.
+
+To override the default path to the bcp command line utility, set the
+\code{bcputility.bcp.path} option.
 }
 \examples{
 \dontrun{

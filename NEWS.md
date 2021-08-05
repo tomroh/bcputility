@@ -1,4 +1,8 @@
-# bcputility 0.1.1
+# bcputility 0.2.0
+
+* set the path to the bcp utility with the bcputility.bcp.path option
+
+* added links to source code, bug reports, and documentation site
 
 * rowterminator and fieldterminator are no passed to `data.table::fwrite` if data
 is in memory

@@ -57,7 +57,14 @@
   <a href="news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/tomroh/bcputility/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -86,6 +93,9 @@
 <p>Install the development version with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"tomroh/bcputility"</span><span class="op">)</span></code></pre></div>
+<p>If <em>bcp</em> is not on the system path or you want to override the default, set the option with the full file path:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>bcputility.bcp.path <span class="op">=</span> <span class="st">"&lt;path-to-bcp&gt;"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="benchmarks" class="section level2">
 <h2 class="hasAnchor">
@@ -94,7 +104,7 @@
 <div id="import" class="section level3">
 <h3 class="hasAnchor">
 <a href="#import" class="anchor"></a>Import</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dbi.r-dbi.org">DBI</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/nycflights13">nycflights13</a></span><span class="op">)</span>
@@ -199,7 +209,7 @@
 <h3 class="hasAnchor">
 <a href="#export-table" class="anchor"></a>Export Table</h3>
 <p><strong>Note:</strong> <em>bcp</em> exports of data may not match the format of <code>fwrite</code>. <code>dateTimeAs = 'write.csv'</code> was used to make timings comparable, which decreased the performance of “<a href="https://rdatatable.gitlab.io/data.table/">data.table</a>”. Optimized write formats for date times from <code>fwrite</code> outperforms <em>bcp</em> for data that is small enough to be pulled into memory.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exportResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
   bcpExportChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test1.csv'</span>,
@@ -275,7 +285,7 @@
 <div id="export-query" class="section level3">
 <h3 class="hasAnchor">
 <a href="#export-query" class="anchor"></a>Export Query</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">queryResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
   bcpExportQueryChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test4.csv'</span>,
@@ -352,7 +362,7 @@
 <h3 class="hasAnchor">
 <a href="#import-geometry" class="anchor"></a>Import Geometry</h3>
 <p>Importing spatial data from ‘sf’ objects is also supported. The sql statements after import are to produce equivalent tables in the database.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span>
 <span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">st_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"gpkg/nc.gpkg"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">nc</span> <span class="op">&lt;-</span> <span class="va">nc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>, <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
@@ -502,6 +512,10 @@
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=bcputility">https://​cloud.r-project.org/​package=bcputility</a>
 </li>
+<li>Browse source code at <br><a href="https://github.com/tomroh/bcputility/">https://​github.com/​tomroh/​bcputility/​</a>
+</li>
+<li>Report a bug at <br><a href="https://github.com/tomroh/bcputility/issues">https://​github.com/​tomroh/​bcputility/​issues</a>
+</li>
 </ul>
 </div>
 <div class="license">
@@ -525,7 +539,7 @@
 <li><a href="https://CRAN.R-project.org/package=bcputility"><img src="https://www.r-pkg.org/badges/version/bcputility" alt="CRAN status"></a></li>
 <li><a href="https://github.com/tomroh/bcputility/actions"><img src="https://github.com/tomroh/bcputility/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental-1"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://cran.r-project.org/package=bcputility"><img src="http://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green"></a></li>
+<li><a href="https://cran.r-project.org/package=bcputility"><img src="https://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green"></a></li>
 </ul>
 </div>
 </div>
