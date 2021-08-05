@@ -9,3 +9,5 @@ Encoding: UTF-8
 RoxygenNote: 7.1.1
 SystemRequirements: bcp Utility
 Imports: data.table, DBI, odbc, sf
+URL: https://bcputility.roh.engineering, https://github.com/tomroh/bcputility
+BugReports: https://github.com/tomroh/bcputility/issues

@@ -1,5 +1,9 @@
 # bcputility 0.1.1
 
+
+
+* added links to source code, bug reports and documentation site
+
 * rowterminator and fieldterminator are no passed to `data.table::fwrite` if data
 is in memory
 
