@@ -49,6 +49,8 @@ Benchmarks were performed with a local installation of SQL Server Express.
 When testing with a remote SQL Server, performance of *bcp* over *odbc* was further 
 improved.
 
+![](man/figures/benchmarks.png)
+
 ### Import
 
 ```r
