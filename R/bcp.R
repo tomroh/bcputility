@@ -132,8 +132,8 @@ bcpImport <- function(x,
                       overwrite = FALSE,
                       spatialtype = c('geometry', 'geography'),
                       ...) {
-  on.exit(if ( exists(con) ) {DBI::dbDisconnect(con)})
-  on.exit(if ( exists(tmp) ) {unlink(tmp)}, add = TRUE)
+  on.exit(if ( exists('con', inherits = FALSE) ) {DBI::dbDisconnect(con)}, add = TRUE)
+  on.exit(if ( exists('tmp', inherits = FALSE) ) {unlink(tmp)}, add = TRUE)
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
     con <- DBI::dbConnect(odbc::odbc(),
