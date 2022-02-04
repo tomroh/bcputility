@@ -1,3 +1,10 @@
+# bcputility 0.3.0
+
+* user name and passwords are now quoted with `shQuote` so special characters 
+are handled across platforms
+
+* added check to see if bcp program can be found
+
 # bcputility 0.2.0
 
 * set the path to the bcp utility with the bcputility.bcp.path option

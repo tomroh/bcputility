@@ -132,8 +132,8 @@ bcpImport <- function(x,
                       overwrite = FALSE,
                       spatialtype = c('geometry', 'geography'),
                       ...) {
-  on.exit(DBI::dbDisconnect(con))
-  on.exit(unlink(tmp), add = TRUE)
+  on.exit(if ( exists(con) ) {DBI::dbDisconnect(con)})
+  on.exit(if ( exists(tmp) ) {unlink(tmp)}, add = TRUE)
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
     con <- DBI::dbConnect(odbc::odbc(),
@@ -141,7 +141,7 @@ bcpImport <- function(x,
                           server = server,
                           database = database)
   } else {
-    bcpArgs <- list('-U', username, '-P', password)
+    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
     con <- DBI::dbConnect(odbc::odbc(),
                           driver = driver,
                           server = server,
@@ -210,6 +210,9 @@ bcpImport <- function(x,
   bcp <- 'bcp'
   if ( !is.null(getOption('bcputility.bcp.path')) ) {
     bcp <- getOption('bcputility.bcp.path')
+  }
+  if ( Sys.which(bcp) == '' ) {
+    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
   }
   system2(bcp, args = bcpArgs, ...)
   if ( isSpatial ) {
@@ -329,7 +332,7 @@ bcpExport <- function(file,
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
   } else {
-    bcpArgs <- list('-U', username, '-P', password)
+    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
   }
   datatypes <- match.arg(datatypes)
   if ( datatypes == 'char' ) {
@@ -355,6 +358,9 @@ bcpExport <- function(file,
   bcp <- 'bcp'
   if ( !is.null(getOption('bcputility.bcp.path')) ) {
     bcp <- getOption('bcputility.bcp.path')
+  }
+  if ( Sys.which(bcp) == '' ) {
+    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
   }
   #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '))
   system2(bcp, args = bcpArgs, ...)
