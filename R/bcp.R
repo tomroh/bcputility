@@ -139,7 +139,8 @@ bcpImport <- function(x,
     con <- DBI::dbConnect(odbc::odbc(),
                           driver = driver,
                           server = server,
-                          database = database)
+                          database = database,
+                          trusted_connection = 'yes')
   } else {
     bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
     con <- DBI::dbConnect(odbc::odbc(),
