@@ -1,5 +1,10 @@
 # bcputility 0.3.0
 
+* added documentation for using schema and `DBI::Id` is now supported
+
+* Trusted connections are now compatible with newer sql server drivers as the 
+default for all drivers is now `trusted_connection='yes'`
+
 * user name and passwords are now quoted with `shQuote` so special characters 
 are handled across platforms
 

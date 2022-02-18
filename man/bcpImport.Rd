@@ -29,9 +29,10 @@ bcpImport(
 
 \item{server}{the instance of SQL Server to which to connect}
 
-\item{database}{Specifies the database to connect to}
+\item{database}{specifies the database to connect to}
 
-\item{table}{name of the source table when exporting from  SQL Server}
+\item{table}{Name of the source table when exporting from  SQL Server. For specifying the
+schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.}
 
 \item{driver}{name of driver for ODBC connection}
 

@@ -12,11 +12,12 @@
 #'
 #' @param database
 #'
-#' Specifies the database to connect to
+#' specifies the database to connect to
 #'
 #' @param table
 #'
-#' name of the source table when exporting from  SQL Server
+#' Name of the source table when exporting from  SQL Server. For specifying the
+#' schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.
 #'
 #' @param driver
 #'
@@ -149,6 +150,13 @@ bcpImport <- function(x,
                           database = database,
                           UID = username,
                           PWD = password)
+  }
+  # convert to sql class early for Id
+  if ( inherits(table, 'Id') ) {
+    table <- DBI::SQL(sprintf('%s.%s',
+                              table@name[['schema']],
+                              table@name[['table']])
+    )
   }
   bcpArgs <- append(bcpArgs,
                     list(
