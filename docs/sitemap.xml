@@ -4,9 +4,27 @@
     <loc>https://bcputility.roh.engineering/index.html</loc>
   </url>
   <url>
+    <loc>https://bcputility.roh.engineering/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.roh.engineering/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.roh.engineering/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.roh.engineering/404.html</loc>
+  </url>
+  <url>
     <loc>https://bcputility.roh.engineering/reference/bcpExport.html</loc>
   </url>
   <url>
     <loc>https://bcputility.roh.engineering/reference/bcpImport.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.roh.engineering/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.roh.engineering/news/index.html</loc>
   </url>
 </urlset>
