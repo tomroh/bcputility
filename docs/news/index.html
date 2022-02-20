@@ -49,8 +49,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.0" id="bcputility-030">bcputility 0.3.0<a class="anchor" aria-label="anchor" href="#bcputility-030"></a></h2>
-<ul><li><p>added documentation for using schema and <code><a href="https://dbi.r-dbi.org/reference/Id.html" class="external-link">DBI::Id</a></code> is now supported</p></li>
-<li><p>Trusted connections are now compatible with newer sql server drivers as the default for all drivers is now <code>trusted_connection='yes'</code></p></li>
+<ul><li><p><code>bcpImport</code> now returns the output of system2 for all specifications of stderr and stdout</p></li>
+<li><p>added documentation for using schema and <code><a href="https://dbi.r-dbi.org/reference/Id.html" class="external-link">DBI::Id</a></code> is now supported</p></li>
+<li><p>trusted connections are now compatible with newer sql server drivers as the default for all drivers is now <code>trusted_connection='yes'</code></p></li>
 <li><p>user name and passwords are now quoted with <code>shQuote</code> so special characters are handled across platforms</p></li>
 <li><p>added check to see if bcp program can be found</p></li>
 </ul></div>

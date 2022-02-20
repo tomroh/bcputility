@@ -97,8 +97,7 @@
 #'
 #' @return
 #'
-#' No return value. Operations from bcp are printed to console; see
-#' \code{...} to redirect output
+#' Output from \code{system2}. See \code{...} to redirect output.
 #'
 #' @export
 #'
@@ -205,7 +204,8 @@ bcpImport <- function(x,
     dbTypes[[geometryCol]] <- spatialtype
     dbTypes[[binaryCol]] <- 'varbinary(max)'
   }
-
+  # used in check later for spatial data writes
+  append <- DBI::dbExistsTable(con, table) & !overwrite
   if ( overwrite ) {
     if ( DBI::dbExistsTable(con, table) ) {
       DBI::dbRemoveTable(con, name = table)
@@ -223,8 +223,8 @@ bcpImport <- function(x,
   if ( Sys.which(bcp) == '' ) {
     stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
   }
-  system2(bcp, args = bcpArgs, ...)
-  if ( isSpatial ) {
+  output <- suppressWarnings(system2(bcp, args = bcpArgs, ...))
+  if ( isSpatial & !append) {
     # quote with brackets for table name
     # ignored when passing DBI::SQL('schema.table')
     if ( !inherits(table, 'SQL') ) {
@@ -249,6 +249,7 @@ bcpImport <- function(x,
               table, binaryCol)
     ))
   }
+  output
 }
 
 

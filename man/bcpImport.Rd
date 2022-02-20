@@ -65,8 +65,7 @@ ignored if \code{x} is not an 'sf' object}
 \item{...}{arguments to pass to \link[base]{system2}}
 }
 \value{
-No return value. Operations from bcp are printed to console; see
-\code{...} to redirect output
+Output from \code{system2}. See \code{...} to redirect output.
 }
 \description{
 A wrapper for a system call to the bcp utility which bulk inserts to SQL Server.
