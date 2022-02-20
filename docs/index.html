@@ -26,31 +26,16 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">bcputility</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+
+
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
+
   <a href="reference/index.html">Reference</a>
 </li>
 <li>
@@ -59,7 +44,9 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/tomroh/bcputility/">
+
+  <a href="https://github.com/tomroh/bcputility/" class="external-link">
+
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -76,49 +63,50 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="bcputility-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#bcputility-" class="anchor"></a>bcputility <a href="https://bcputility.roh.engineering"><img src="reference/figures/logo.png" align="right" height="104"></a>
+<div class="section level1">
+<div class="page-header"><h1 id="bcputility-">bcputility <a href="https://bcputility.roh.engineering"><img src="reference/figures/logo.png" align="right" height="104"></a>
+<a class="anchor" aria-label="anchor" href="#bcputility-"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p><strong>bcputility</strong> is a wrapper for the command line utility program from SQL Server that does bulk imports/exports. The package assumes that <a href="https://docs.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver15">bcp</a> is already installed and is on the system search path. For large inserts to SQL Server over an ODBC connection (e.g. with the “<a href="https://db.rstudio.com/dbi/">DBI</a>” package), writes can take a very long time as each row generates an individual insert statement. The bcp Utility greatly improves performance of large writes by using bulk inserts.</p>
+<p><strong>bcputility</strong> is a wrapper for the command line utility program from SQL Server that does bulk imports/exports. The package assumes that <a href="https://docs.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver15" class="external-link">bcp</a> is already installed and is on the system search path. For large inserts to SQL Server over an ODBC connection (e.g. with the “<a href="https://db.rstudio.com/dbi/" class="external-link">DBI</a>” package), writes can take a very long time as each row generates an individual insert statement. The bcp Utility greatly improves performance of large writes by using bulk inserts.</p>
 <p>An export function is provided for convenience, but likely will not significantly improve performance over other methods.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the released version of bcputility from <a href="https://CRAN.R-project.org">CRAN</a> with:</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the released version of bcputility from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"bcputility"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"bcputility"</span><span class="op">)</span></code></pre></div>
 <p>Install the development version with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"tomroh/bcputility"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"tomroh/bcputility"</span><span class="op">)</span></code></pre></div>
 <p>If <em>bcp</em> is not on the system path or you want to override the default, set the option with the full file path:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>bcputility.bcp.path <span class="op">=</span> <span class="st">"&lt;path-to-bcp&gt;"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>bcputility.bcp.path <span class="op">=</span> <span class="st">"&lt;path-to-bcp&gt;"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="benchmarks" class="section level2">
-<h2 class="hasAnchor">
-<a href="#benchmarks" class="anchor"></a>Benchmarks</h2>
+<div class="section level2">
+<h2 id="benchmarks">Benchmarks<a class="anchor" aria-label="anchor" href="#benchmarks"></a>
+</h2>
 <p>Benchmarks were performed with a local installation of SQL Server Express. When testing with a remote SQL Server, performance of <em>bcp</em> over <em>odbc</em> was further improved.</p>
 <p><img src="reference/figures/benchmarks.png"></p>
-<div id="import" class="section level3">
-<h3 class="hasAnchor">
-<a href="#import" class="anchor"></a>Import</h3>
+<div class="section level3">
+<h3 id="import">Import<a class="anchor" aria-label="anchor" href="#import"></a>
+</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dbi.r-dbi.org">DBI</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/nycflights13">nycflights13</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"flights"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">82</span><span class="op">)</span>
-<span class="va">flights</span> <span class="op">&lt;-</span> <span class="va">flights</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">flights</span><span class="op">)</span>, <span class="fl">1000000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dbi.r-dbi.org" class="external-link">DBI</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/nycflights13" class="external-link">nycflights13</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"flights"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">82</span><span class="op">)</span>
+<span class="va">flights</span> <span class="op">&lt;-</span> <span class="va">flights</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">flights</span><span class="op">)</span>, <span class="fl">1000000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
 <span class="va">server</span> <span class="op">&lt;-</span> <span class="st">'localhost\\SQLEXPRESS'</span>
 <span class="va">database</span> <span class="op">&lt;-</span> <span class="st">'Main'</span>
-<span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+<span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html" class="external-link">odbc</a></span><span class="op">(</span><span class="op">)</span>,
                       Driver <span class="op">=</span> <span class="st">"SQL Server"</span>,
                       Server <span class="op">=</span> <span class="va">server</span>,
                       Database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
-<span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+<span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+
   bcpImport1000 <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpImport.html">bcpImport</a></span><span class="op">(</span><span class="va">flights</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -146,7 +134,8 @@
               batchsize <span class="op">=</span> <span class="fl">50000</span><span class="op">)</span>
   <span class="op">}</span>,
   dbWriteTable <span class="op">=</span> <span class="op">{</span>
-    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html">dbWriteTable</a></span><span class="op">(</span><span class="va">con</span>, name <span class="op">=</span> <span class="st">'flights4'</span>, <span class="va">flights</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable</a></span><span class="op">(</span><span class="va">con</span>, name <span class="op">=</span> <span class="st">'flights4'</span>, <span class="va">flights</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+
     <span class="op">}</span>,
   times <span class="op">=</span> <span class="fl">30L</span>
 <span class="op">)</span></code></pre></div>
@@ -206,12 +195,14 @@
 </table>
 <p><em>Time in seconds</em></p>
 </div>
-<div id="export-table" class="section level3">
-<h3 class="hasAnchor">
-<a href="#export-table" class="anchor"></a>Export Table</h3>
-<p><strong>Note:</strong> <em>bcp</em> exports of data may not match the format of <code>fwrite</code>. <code>dateTimeAs = 'write.csv'</code> was used to make timings comparable, which decreased the performance of “<a href="https://rdatatable.gitlab.io/data.table/">data.table</a>”. Optimized write formats for date times from <code>fwrite</code> outperforms <em>bcp</em> for data that is small enough to be pulled into memory.</p>
+
+<div class="section level3">
+<h3 id="export-table">Export Table<a class="anchor" aria-label="anchor" href="#export-table"></a>
+</h3>
+<p><strong>Note:</strong> <em>bcp</em> exports of data may not match the format of <code>fwrite</code>. <code>dateTimeAs = 'write.csv'</code> was used to make timings comparable, which decreased the performance of “<a href="https://rdatatable.gitlab.io/data.table/" class="external-link">data.table</a>”. Optimized write formats for date times from <code>fwrite</code> outperforms <em>bcp</em> for data that is small enough to be pulled into memory.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">exportResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">exportResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+
   bcpExportChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test1.csv'</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -231,7 +222,9 @@
               datatypes <span class="op">=</span> <span class="st">'nchar'</span><span class="op">)</span>
   <span class="op">}</span>,
   fwriteQuery <span class="op">=</span> <span class="op">{</span>
-    <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html">fwrite</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbReadTable.html">dbReadTable</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">'flights1'</span><span class="op">)</span>,
+
+    <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbReadTable.html" class="external-link">dbReadTable</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">'flights1'</span><span class="op">)</span>,
+
            <span class="st">'test3.csv'</span>, dateTimeAs <span class="op">=</span> <span class="st">'write.csv'</span>,
            col.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="op">}</span>,
@@ -283,11 +276,13 @@
 </table>
 <p><em>Time in seconds</em></p>
 </div>
-<div id="export-query" class="section level3">
-<h3 class="hasAnchor">
-<a href="#export-query" class="anchor"></a>Export Query</h3>
+
+<div class="section level3">
+<h3 id="export-query">Export Query<a class="anchor" aria-label="anchor" href="#export-query"></a>
+</h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">queryResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">queryResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+
   bcpExportQueryChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test4.csv'</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -307,7 +302,9 @@
               datatypes <span class="op">=</span> <span class="st">'nchar'</span><span class="op">)</span>
   <span class="op">}</span>,
   fwriteQuery <span class="op">=</span> <span class="op">{</span>
-    <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html">fwrite</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">query</span><span class="op">)</span>,
+
+    <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">query</span><span class="op">)</span>,
+
            <span class="st">'test6.csv'</span>, dateTimeAs <span class="op">=</span> <span class="st">'write.csv'</span>,
            col.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="op">}</span>,
@@ -359,15 +356,17 @@
 </table>
 <p><em>Time in seconds</em></p>
 </div>
-<div id="import-geometry" class="section level3">
-<h3 class="hasAnchor">
-<a href="#import-geometry" class="anchor"></a>Import Geometry</h3>
+
+<div class="section level3">
+<h3 id="import-geometry">Import Geometry<a class="anchor" aria-label="anchor" href="#import-geometry"></a>
+</h3>
 <p>Importing spatial data from ‘sf’ objects is also supported. The sql statements after import are to produce equivalent tables in the database.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span>
-<span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">st_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"gpkg/nc.gpkg"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">nc</span> <span class="op">&lt;-</span> <span class="va">nc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>, <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
-<span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span>
+<span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"gpkg/nc.gpkg"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">nc</span> <span class="op">&lt;-</span> <span class="va">nc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>, <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
+<span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+
   bcpImportGeometry <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpImport.html">bcpImport</a></span><span class="op">(</span><span class="va">nc</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -375,20 +374,24 @@
               table <span class="op">=</span> <span class="st">'nc1'</span>,
               overwrite <span class="op">=</span> <span class="cn">TRUE</span>,
               stdout <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+
+    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html" class="external-link">odbc</a></span><span class="op">(</span><span class="op">)</span>,
                           driver <span class="op">=</span> <span class="st">'SQL Server'</span>,
                           server <span class="op">=</span> <span class="va">server</span>,
                           database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
-    <span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/sqlInterpolate.html">sqlInterpolate</a></span><span class="op">(</span>
+    <span class="va">sql</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/sqlInterpolate.html" class="external-link">sqlInterpolate</a></span><span class="op">(</span>
+
       <span class="va">con</span>,
       <span class="st">'alter table dbo.nc1 add ObjectID integer primary key identity(1,1);
        create spatial index nc1_spix on nc1(geom)
        with ( bounding_box = ( ?xmin, ?ymin, ?xmax, ?ymax ),
               grids = (medium, medium, medium, medium),
               cells_per_object = 16);'</span>,
-      .dots <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html">st_bbox</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>
+
+      .dots <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>
     <span class="op">)</span>
-    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html">dbExecute</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span>
+    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span>
+
   <span class="op">}</span>,
   bcpImportGeography <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpImport.html">bcpImport</a></span><span class="op">(</span><span class="va">nc</span>,
@@ -398,7 +401,9 @@
               overwrite <span class="op">=</span> <span class="cn">TRUE</span>,
               stdout <span class="op">=</span> <span class="cn">FALSE</span>,
               spatialtype <span class="op">=</span> <span class="st">'geography'</span><span class="op">)</span>
-    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+
+    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html" class="external-link">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+
                           driver <span class="op">=</span> <span class="st">'SQL Server'</span>,
                           server <span class="op">=</span> <span class="va">server</span>,
                           database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
@@ -407,39 +412,43 @@
             using geography_grid
             with ( grids = (medium, medium, medium, medium),
                    cells_per_object = 16);'</span>
-    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html">dbExecute</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span>
+
+    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span>
   <span class="op">}</span>,
   stWriteGeometry <span class="op">=</span> <span class="op">{</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span><span class="op">(</span><span class="st">'MSSQLSPATIAL_USE_GEOMETRY_COLUMNS'</span> <span class="op">=</span> <span class="st">'NO'</span><span class="op">)</span>
-    <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html">st_write</a></span><span class="op">(</span><span class="va">nc</span>,
-             <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)'</span>,
+    <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">'MSSQLSPATIAL_USE_GEOMETRY_COLUMNS'</span> <span class="op">=</span> <span class="st">'NO'</span><span class="op">)</span>
+    <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html" class="external-link">st_write</a></span><span class="op">(</span><span class="va">nc</span>,
+             <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)'</span>,
                      <span class="va">server</span>, <span class="va">database</span><span class="op">)</span>,
              <span class="st">'dbo.nc3'</span>,
-             layer_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GEOM_TYPE=geometry'</span>, <span class="st">'LAUNDER=NO'</span>,
+             layer_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'GEOM_TYPE=geometry'</span>, <span class="st">'LAUNDER=NO'</span>,
                                <span class="st">'GEOMETRY_NAME=geom'</span>, <span class="st">'FID=ObjectID'</span><span class="op">)</span>,
              append <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html" class="external-link">odbc</a></span><span class="op">(</span><span class="op">)</span>,
                           driver <span class="op">=</span> <span class="st">'SQL Server'</span>,
                           server <span class="op">=</span> <span class="va">server</span>,
                           database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
-    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html">dbExecute</a></span><span class="op">(</span><span class="va">con</span>,
+    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span><span class="va">con</span>,
+
                    <span class="st">'alter table dbo.nc3 alter column [NAME] varchar(255);
                     alter table dbo.nc3 alter column [FIPS] varchar(255);'</span><span class="op">)</span>
     <span class="op">}</span>,
   stWriteGeography <span class="op">=</span> <span class="op">{</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span><span class="op">(</span><span class="st">'MSSQLSPATIAL_USE_GEOMETRY_COLUMNS'</span> <span class="op">=</span> <span class="st">'NO'</span><span class="op">)</span>
-    <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html">st_write</a></span><span class="op">(</span><span class="va">nc</span>,
-             <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)'</span>,
+
+    <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">'MSSQLSPATIAL_USE_GEOMETRY_COLUMNS'</span> <span class="op">=</span> <span class="st">'NO'</span><span class="op">)</span>
+    <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html" class="external-link">st_write</a></span><span class="op">(</span><span class="va">nc</span>,
+             <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)'</span>,
                      <span class="va">server</span>, <span class="va">database</span><span class="op">)</span>,
              <span class="st">'dbo.nc4'</span>,
-             layer_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GEOM_TYPE=geography'</span>, <span class="st">'LAUNDER=NO'</span>,
+             layer_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'GEOM_TYPE=geography'</span>, <span class="st">'LAUNDER=NO'</span>,
                                <span class="st">'GEOMETRY_NAME=geom'</span>, <span class="st">'FID=ObjectID'</span><span class="op">)</span>,
              append <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html">odbc</a></span><span class="op">(</span><span class="op">)</span>,
+    <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">odbc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/odbc/man/odbc.html" class="external-link">odbc</a></span><span class="op">(</span><span class="op">)</span>,
                           driver <span class="op">=</span> <span class="st">'SQL Server'</span>,
                           server <span class="op">=</span> <span class="va">server</span>,
                           database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
-    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html">dbExecute</a></span><span class="op">(</span><span class="va">con</span>,
+    <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span><span class="va">con</span>,
+
                    <span class="st">'alter table dbo.nc4 alter column [NAME] varchar(255);
                     alter table dbo.nc4 alter column [FIPS] varchar(255);
                     update dbo.nc4 SET geom = geom.MakeValid().ReorientObject()
@@ -509,56 +518,73 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=bcputility">https://​cloud.r-project.org/​package=bcputility</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/tomroh/bcputility/">https://​github.com/​tomroh/​bcputility/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/tomroh/bcputility/issues">https://​github.com/​tomroh/​bcputility/​issues</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>
-<a href="https://roh.engineering/about">Thomas Roh</a> <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="https://cloud.r-project.org/package=bcputility" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/tomroh/bcputility/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/tomroh/bcputility/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=bcputility"><img src="https://www.r-pkg.org/badges/version/bcputility" alt="CRAN status"></a></li>
-<li><a href="https://github.com/tomroh/bcputility/actions"><img src="https://github.com/tomroh/bcputility/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental-1"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://cran.r-project.org/package=bcputility"><img src="https://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green"></a></li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing bcputility</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>
+<a href="https://roh.engineering/about" class="external-link">Thomas Roh</a> <br><small class="roles"> Author, maintainer </small>  </li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+
+<ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=bcputility" class="external-link"><img src="https://www.r-pkg.org/badges/version/bcputility" alt="CRAN status"></a></li>
+<li><a href="https://github.com/tomroh/bcputility/actions" class="external-link"><img src="https://github.com/tomroh/bcputility/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental-1" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://cran.r-project.org/package=bcputility" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/bcputility?color=green"></a></li>
+</ul>
+</div>
+
+
+  </div>
+
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://roh.engineering/about">Thomas Roh</a>.</p>
+
+  <p></p>
+<p>Developed by <a href="https://roh.engineering/about" class="external-link">Thomas Roh</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+
 </div>
 
       </footer>
 </div>
 
   
+
 
 
   </body>

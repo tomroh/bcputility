@@ -29,9 +29,10 @@ bcpImport(
 
 \item{server}{the instance of SQL Server to which to connect}
 
-\item{database}{Specifies the database to connect to}
+\item{database}{specifies the database to connect to}
 
-\item{table}{name of the source table when exporting from  SQL Server}
+\item{table}{Name of the source table when exporting from  SQL Server. For specifying the
+schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.}
 
 \item{driver}{name of driver for ODBC connection}
 
@@ -64,8 +65,7 @@ ignored if \code{x} is not an 'sf' object}
 \item{...}{arguments to pass to \link[base]{system2}}
 }
 \value{
-No return value. Operations from bcp are printed to console; see
-\code{...} to redirect output
+Output from \code{system2}. See \code{...} to redirect output.
 }
 \description{
 A wrapper for a system call to the bcp utility which bulk inserts to SQL Server.

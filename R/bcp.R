@@ -12,11 +12,12 @@
 #'
 #' @param database
 #'
-#' Specifies the database to connect to
+#' specifies the database to connect to
 #'
 #' @param table
 #'
-#' name of the source table when exporting from  SQL Server
+#' Name of the source table when exporting from  SQL Server. For specifying the
+#' schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.
 #'
 #' @param driver
 #'
@@ -96,8 +97,7 @@
 #'
 #' @return
 #'
-#' No return value. Operations from bcp are printed to console; see
-#' \code{...} to redirect output
+#' Output from \code{system2}. See \code{...} to redirect output.
 #'
 #' @export
 #'
@@ -132,22 +132,30 @@ bcpImport <- function(x,
                       overwrite = FALSE,
                       spatialtype = c('geometry', 'geography'),
                       ...) {
-  on.exit(DBI::dbDisconnect(con))
-  on.exit(unlink(tmp), add = TRUE)
+  on.exit(if ( exists('con', inherits = FALSE) ) {DBI::dbDisconnect(con)}, add = TRUE)
+  on.exit(if ( exists('tmp', inherits = FALSE) ) {unlink(tmp)}, add = TRUE)
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
     con <- DBI::dbConnect(odbc::odbc(),
                           driver = driver,
                           server = server,
-                          database = database)
+                          database = database,
+                          trusted_connection = 'yes')
   } else {
-    bcpArgs <- list('-U', username, '-P', password)
+    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
     con <- DBI::dbConnect(odbc::odbc(),
                           driver = driver,
                           server = server,
                           database = database,
                           UID = username,
                           PWD = password)
+  }
+  # convert to sql class early for Id
+  if ( inherits(table, 'Id') ) {
+    table <- DBI::SQL(sprintf('%s.%s',
+                              table@name[['schema']],
+                              table@name[['table']])
+    )
   }
   bcpArgs <- append(bcpArgs,
                     list(
@@ -196,7 +204,8 @@ bcpImport <- function(x,
     dbTypes[[geometryCol]] <- spatialtype
     dbTypes[[binaryCol]] <- 'varbinary(max)'
   }
-
+  # used in check later for spatial data writes
+  append <- DBI::dbExistsTable(con, table) & !overwrite
   if ( overwrite ) {
     if ( DBI::dbExistsTable(con, table) ) {
       DBI::dbRemoveTable(con, name = table)
@@ -211,8 +220,11 @@ bcpImport <- function(x,
   if ( !is.null(getOption('bcputility.bcp.path')) ) {
     bcp <- getOption('bcputility.bcp.path')
   }
-  system2(bcp, args = bcpArgs, ...)
-  if ( isSpatial ) {
+  if ( Sys.which(bcp) == '' ) {
+    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
+  }
+  output <- suppressWarnings(system2(bcp, args = bcpArgs, ...))
+  if ( isSpatial & !append) {
     # quote with brackets for table name
     # ignored when passing DBI::SQL('schema.table')
     if ( !inherits(table, 'SQL') ) {
@@ -237,6 +249,7 @@ bcpImport <- function(x,
               table, binaryCol)
     ))
   }
+  output
 }
 
 
@@ -329,7 +342,7 @@ bcpExport <- function(file,
   if ( trustedconnection ) {
     bcpArgs <- list('-T')
   } else {
-    bcpArgs <- list('-U', username, '-P', password)
+    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
   }
   datatypes <- match.arg(datatypes)
   if ( datatypes == 'char' ) {
@@ -355,6 +368,9 @@ bcpExport <- function(file,
   bcp <- 'bcp'
   if ( !is.null(getOption('bcputility.bcp.path')) ) {
     bcp <- getOption('bcputility.bcp.path')
+  }
+  if ( Sys.which(bcp) == '' ) {
+    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
   }
   #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '))
   system2(bcp, args = bcpArgs, ...)
