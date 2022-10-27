@@ -71,6 +71,11 @@
 #' spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 #' ignored if \code{x} is not an 'sf' object
 #'
+#' @param azure
+#'
+#' use Azure Active Directory authentication, does not work with integrated
+#' authentication.
+#'
 #' @param ...
 #'
 #' arguments to pass to \link[base]{system2}
@@ -131,16 +136,30 @@ bcpImport <- function(x,
                       rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
                       overwrite = FALSE,
                       spatialtype = c('geometry', 'geography'),
+                      azure = FALSE,
                       ...) {
   on.exit(if ( exists('con', inherits = FALSE) ) {DBI::dbDisconnect(con)}, add = TRUE)
   on.exit(if ( exists('tmp', inherits = FALSE) ) {unlink(tmp)}, add = TRUE)
-  if ( trustedconnection ) {
+  if ( isTRUE(trustedconnection) & isTRUE(azure) ) {
+    stop('trustedconnection and azure cannot both be TRUE')
+  }
+  if ( isTRUE(trustedconnection) ) {
     bcpArgs <- list('-T')
     con <- DBI::dbConnect(odbc::odbc(),
                           driver = driver,
                           server = server,
                           database = database,
                           trusted_connection = 'yes')
+  } else if ( isTRUE(azure) ) {
+    bcpArgs <- list('-G', '-U', shQuote(username), '-P', shQuote(password))
+    con <- DBI::dbConnect(odbc::odbc(),
+                          driver = driver,
+                          server = server,
+                          database = database,
+                          UID = username,
+                          PWD = password,
+                          Authentication = 'ActiveDirectoryPassword')
+
   } else {
     bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
     con <- DBI::dbConnect(odbc::odbc(),
@@ -196,7 +215,7 @@ bcpImport <- function(x,
                                   'in', shQuote(fileName),
                                   '-S', server,
                                   '-d', database), after = 0)
-  if ( regional ) {
+  if ( isTRUE(regional) ) {
     bcpArgs <- append(bcpArgs, list('-R'))
   }
   dbTypes <- DBI::dbDataType(con, x)
@@ -206,7 +225,7 @@ bcpImport <- function(x,
   }
   # used in check later for spatial data writes
   append <- DBI::dbExistsTable(con, table) & !overwrite
-  if ( overwrite ) {
+  if ( isTRUE(overwrite) ) {
     if ( DBI::dbExistsTable(con, table) ) {
       DBI::dbRemoveTable(con, name = table)
     }
@@ -305,6 +324,11 @@ bcpImport <- function(x,
 #' char performs the operation using a character data type,
 #' nchar performs the bulk copy operation using Unicode characters
 #'
+#' @param azure
+#'
+#' use Azure Active Directory authentication, does not work with integrated
+#' authentication
+#'
 #' @param ...
 #'
 #' arguments to pass \link[base]{system2}
@@ -338,8 +362,9 @@ bcpExport <- function(file,
                       fieldterminator = '\t',
                       rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
                       datatypes = c('char', 'nchar'),
+                      azure = FALSE,
                       ...) {
-  if ( trustedconnection ) {
+  if ( isTRUE(trustedconnection) ) {
     bcpArgs <- list('-T')
   } else {
     bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
@@ -365,6 +390,12 @@ bcpExport <- function(file,
                                   outArg, shQuote(file),
                                   '-S', server,
                                   '-d', database), after = 0)
+  if ( isTRUE(trustedconnection) & isTRUE(azure) ) {
+    stop('trustedconnection and azure cannot both be TRUE')
+  }
+  if ( isTRUE(azure) ) {
+    bcpArgs <- append(bcpArgs, '-G')
+  }
   bcp <- 'bcp'
   if ( !is.null(getOption('bcputility.bcp.path')) ) {
     bcp <- getOption('bcputility.bcp.path')

@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">bcputility</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@
                       Driver <span class="op">=</span> <span class="st">"SQL Server"</span>,
                       Server <span class="op">=</span> <span class="va">server</span>,
                       Database <span class="op">=</span> <span class="va">database</span><span class="op">)</span>
-<span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+<span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu">microbenchmark</span><span class="op">(</span>
   bcpImport1000 <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpImport.html">bcpImport</a></span><span class="op">(</span><span class="va">flights</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -147,6 +147,16 @@
   times <span class="op">=</span> <span class="fl">30L</span>
 <span class="op">)</span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="20%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="8%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">expr</th>
 <th align="right">min</th>
@@ -207,7 +217,7 @@
 </h3>
 <p><strong>Note:</strong> <em>bcp</em> exports of data may not match the format of <code>fwrite</code>. <code>dateTimeAs = 'write.csv'</code> was used to make timings comparable, which decreased the performance of “<a href="https://rdatatable.gitlab.io/data.table/" class="external-link">data.table</a>”. Optimized write formats for date times from <code>fwrite</code> outperforms <em>bcp</em> for data that is small enough to be pulled into memory.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">exportResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">exportResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu">microbenchmark</span><span class="op">(</span>
   bcpExportChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test1.csv'</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -234,6 +244,16 @@
   times <span class="op">=</span> <span class="fl">30L</span>
 <span class="op">)</span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="18%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="11%">
+<col width="12%">
+<col width="7%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">expr</th>
 <th align="right">min</th>
@@ -283,7 +303,7 @@
 <h3 id="export-query">Export Query<a class="anchor" aria-label="anchor" href="#export-query"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">queryResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">queryResults</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu">microbenchmark</span><span class="op">(</span>
   bcpExportQueryChar <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpExport.html">bcpExport</a></span><span class="op">(</span><span class="st">'test4.csv'</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -309,7 +329,17 @@
   <span class="op">}</span>,
   times <span class="op">=</span> <span class="fl">30L</span>
 <span class="op">)</span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="24%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="7%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">expr</th>
 <th align="right">min</th>
@@ -363,7 +393,7 @@
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span>
 <span class="va">nc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"gpkg/nc.gpkg"</span>, package <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">nc</span> <span class="op">&lt;-</span> <span class="va">nc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">nc</span><span class="op">)</span>, <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="op">]</span>
-<span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span>
+<span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu">microbenchmark</span><span class="op">(</span>
   bcpImportGeometry <span class="op">=</span> <span class="op">{</span>
     <span class="fu"><a href="reference/bcpImport.html">bcpImport</a></span><span class="op">(</span><span class="va">nc</span>,
               server <span class="op">=</span> <span class="va">server</span>,
@@ -444,6 +474,16 @@
   times <span class="op">=</span> <span class="fl">30L</span>
 <span class="op">)</span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="22%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="10%">
+<col width="11%">
+<col width="7%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">expr</th>
 <th align="right">min</th>
@@ -558,7 +598,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer>

@@ -21,6 +21,7 @@ bcpImport(
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
   overwrite = FALSE,
   spatialtype = c("geometry", "geography"),
+  azure = FALSE,
   ...
 )
 }
@@ -61,6 +62,9 @@ computer}
 
 \item{spatialtype}{spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 ignored if \code{x} is not an 'sf' object}
+
+\item{azure}{use Azure Active Directory authentication, does not work with integrated
+authentication.}
 
 \item{...}{arguments to pass to \link[base]{system2}}
 }

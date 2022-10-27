@@ -18,7 +18,7 @@ table or query (T-SQL) to a file."><meta property="og:image" content="https://bc
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bcputility</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
       </span>
     </div>
 
@@ -67,6 +67,7 @@ table or query (T-SQL) to a file.</p>
   fieldterminator <span class="op">=</span> <span class="st">"\t"</span>,
   rowterminator <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span>, <span class="st">"\r\n"</span>, <span class="st">"\n"</span><span class="op">)</span>,
   datatypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"char"</span>, <span class="st">"nchar"</span><span class="op">)</span>,
+  azure <span class="op">=</span> <span class="cn">FALSE</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
     </div>
@@ -75,35 +76,65 @@ table or query (T-SQL) to a file.</p>
     <h2>Arguments</h2>
     <dl><dt>file</dt>
 <dd><p>output file name</p></dd>
+
+
 <dt>server</dt>
 <dd><p>the instance of SQL Server to which to connect</p></dd>
+
+
 <dt>database</dt>
 <dd><p>Specifies the database to connect to</p></dd>
+
+
 <dt>table</dt>
 <dd><p>name of the source table when exporting from  SQL Server</p></dd>
+
+
 <dt>query</dt>
 <dd><p>Transact-SQL query that returns a result set. Ignored if
 table is specified.</p></dd>
+
+
 <dt>trustedconnection</dt>
 <dd><p>use integrated security, username and password are not required</p></dd>
+
+
 <dt>username</dt>
 <dd><p>login ID</p></dd>
+
+
 <dt>password</dt>
 <dd><p>password for login ID</p></dd>
+
+
 <dt>fieldterminator</dt>
 <dd><p>character separator for columns</p></dd>
+
+
 <dt>rowterminator</dt>
 <dd><p>character separator for rows--new lines</p></dd>
+
+
 <dt>datatypes</dt>
 <dd><p>the format of datatypes,
 char performs the operation using a character data type,
 nchar performs the bulk copy operation using Unicode characters</p></dd>
+
+
+<dt>azure</dt>
+<dd><p>use Azure Active Directory authentication, does not work with integrated
+authentication</p></dd>
+
+
 <dt>...</dt>
 <dd><p>arguments to pass <a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>No return value. Operations from bcp are printed to console; see
+    
+
+<p>No return value. Operations from bcp are printed to console; see
 <code>...</code> to redirect output</p>
     </div>
 
@@ -132,7 +163,7 @@ nchar performs the bulk copy operation using Unicode characters</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
