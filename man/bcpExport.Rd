@@ -16,6 +16,7 @@ bcpExport(
   fieldterminator = "\\t",
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
   datatypes = c("char", "nchar"),
+  azure = FALSE,
   ...
 )
 }
@@ -44,6 +45,9 @@ table is specified.}
 \item{datatypes}{the format of datatypes,
 char performs the operation using a character data type,
 nchar performs the bulk copy operation using Unicode characters}
+
+\item{azure}{use Azure Active Directory authentication, does not work with integrated
+authentication}
 
 \item{...}{arguments to pass \link[base]{system2}}
 }

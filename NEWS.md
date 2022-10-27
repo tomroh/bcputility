@@ -1,3 +1,9 @@
+# bcputility 0.3.1
+
+* The argument azure was added to `bcpImport` and `bcpExport` for Azure 
+Active Directory authentication. This only works for username and password 
+authentication.
+
 # bcputility 0.3.0
 
 * `bcpImport` now returns the output of system2 for all specifications of 
