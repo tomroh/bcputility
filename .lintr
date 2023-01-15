@@ -1,0 +1,10 @@
+linters: linters_with_defaults(
+    line_length_linter(80),
+    single_quotes_linter = NULL,
+    object_name_linter = object_name_linter("camelCase")
+    )
+encoding: "UTF-8"
+exclusions: list(
+    "inst/",
+    "tests/"
+  )

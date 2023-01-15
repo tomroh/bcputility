@@ -6,48 +6,30 @@
 \usage{
 bcpExport(
   file,
-  server,
-  database,
+  connectargs,
   table,
   query,
-  trustedconnection = TRUE,
-  username,
-  password,
   fieldterminator = "\\t",
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
-  datatypes = c("char", "nchar"),
-  azure = FALSE,
+  bcpOptions = list("-c", "-b", 1000, "-a", 4096, "-m", 10),
   ...
 )
 }
 \arguments{
 \item{file}{output file name}
 
-\item{server}{the instance of SQL Server to which to connect}
-
-\item{database}{Specifies the database to connect to}
+\item{connectargs}{named list of connection arguments. See \link[bcputility]{makeConnectArgs}.}
 
 \item{table}{name of the source table when exporting from  SQL Server}
 
 \item{query}{Transact-SQL query that returns a result set. Ignored if
 table is specified.}
 
-\item{trustedconnection}{use integrated security, username and password are not required}
-
-\item{username}{login ID}
-
-\item{password}{password for login ID}
-
 \item{fieldterminator}{character separator for columns}
 
 \item{rowterminator}{character separator for rows--new lines}
 
-\item{datatypes}{the format of datatypes,
-char performs the operation using a character data type,
-nchar performs the bulk copy operation using Unicode characters}
-
-\item{azure}{use Azure Active Directory authentication, does not work with integrated
-authentication}
+\item{bcpOptions}{list of additional options to pass to the \code{bcp} utility. See details.}
 
 \item{...}{arguments to pass \link[base]{system2}}
 }
@@ -59,14 +41,13 @@ No return value. Operations from bcp are printed to console; see
 A wrapper for a system call to the bcp utility which writes a SQL Server
 table or query (T-SQL) to a file.
 }
-\examples{
-\dontrun{
-bcpExport('myfile.tsv',
-          server = server,
-          database = database,
-          table = 'mytable',
-          fieldterminator = '|',
-          stdout = FALSE,
-          datatypes = 'char')
-}
+\details{
+The \code{bcpOptions} allows the user to include additional arguments for the
+call to \code{system2}. Please refer to
+\url{https://learn.microsoft.com/en-us/sql/tools/bcp-utility}.
+The default options are set
+to the defaults for \code{bcp} CLI. \code{-b} refers to
+number of rows to write at a time; 10,000 to 50,000 is a
+starting recommendation. \code{-a} refers to size of packets to be sent in
+bytes. \code{-e} refers to the maximum number of errors before failure.
 }

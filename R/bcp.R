@@ -1,58 +1,21 @@
 #' Import data to SQL Server
 #'
-#' A wrapper for a system call to the bcp utility which bulk inserts to SQL Server.
+#' A wrapper for a system call to the bcp utility which bulk inserts to SQL
+#' Server.
 #'
 #' @param x
 #'
 #' dataframe object or path to file
 #'
-#' @param server
+#' @param connectargs
 #'
-#' the instance of SQL Server to which to connect
-#'
-#' @param database
-#'
-#' specifies the database to connect to
+#' named list of connection arguments. See \link[bcputility]{makeConnectArgs}.
 #'
 #' @param table
 #'
-#' Name of the source table when exporting from  SQL Server. For specifying the
-#' schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.
-#'
-#' @param driver
-#'
-#' name of driver for ODBC connection
-#'
-#' @param maxerrors
-#'
-#' maximum number of errors allowed
-#'
-#' @param batchsize
-#'
-#' number of rows to write at a time; 10,000 to 50,000 is a
-#' starting recommendation
-#'
-#' @param packetsize
-#'
-#' size of packets to be sent
-#'
-#' @param regional
-#'
-#' Specifies that currency, date, and time data is bulk copied into SQL Server
-#' using the regional format defined for the locale setting of the client
-#' computer
-#'
-#' @param trustedconnection
-#'
-#' use integrated security, username and password are not required
-#'
-#' @param username
-#'
-#' login ID
-#'
-#' @param password
-#'
-#' password for login ID
+#' Name of the source table when importing from  SQL Server. For specifying the
+#' schema in the table name see \code{<schema>.<table>} and if not specified the
+#' default is "dbo".
 #'
 #' @param fieldterminator
 #'
@@ -68,13 +31,13 @@
 #'
 #' @param spatialtype
 #'
-#' spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+#' spatial data type for schema
+#' \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 #' ignored if \code{x} is not an 'sf' object
 #'
-#' @param azure
+#' @param bcpOptions
 #'
-#' use Azure Active Directory authentication, does not work with integrated
-#' authentication.
+#' list of additional options to pass to the 'bcp' utility. See details.
 #'
 #' @param ...
 #'
@@ -99,6 +62,16 @@
 #'
 #' To override the default path to the bcp command line utility, set the
 #' \code{bcputility.bcp.path} option.
+#' To override the default path to the sqlcmd command line utility, set the
+#' \code{bcputility.sqlcmd.path} option.
+#'
+#' The \code{bcpOptions} allows the user to include additional arguments for the
+#' call to \code{system2}. Please refer to
+#' \url{https://learn.microsoft.com/en-us/sql/tools/bcp-utility}.
+#' The default options are set to the defaults for \code{bcp} CLI. \code{-b}
+#' refers to number of rows to write at a time; 10,000 to 50,000 is a
+#' starting recommendation. \code{-a} refers to size of packets to be sent in
+#' bytes. \code{-e} refers to the maximum number of errors before failure.
 #'
 #' @return
 #'
@@ -106,171 +79,110 @@
 #'
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#' set.seed(33)
-#' x <- data.frame(
-#'   w = rpois(10, 10),
-#'   x = rnorm(10),
-#'   y = sample(LETTERS, 10),
-#'   z = Sys.time()
-#' )
-#' bcpImport(x,
-#'           server = server,
-#'           database = database,
-#'           table = 'mytable')
-#' }
-bcpImport <- function(x,
-                      server,
-                      database,
-                      table,
-                      driver = 'SQL Server',
-                      maxerrors = 10,
-                      batchsize = 1000,
-                      packetsize = 4096,
-                      regional = FALSE,
-                      trustedconnection = TRUE,
-                      username,
-                      password,
-                      fieldterminator = '\t',
-                      rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
-                      overwrite = FALSE,
-                      spatialtype = c('geometry', 'geography'),
-                      azure = FALSE,
-                      ...) {
-  on.exit(if ( exists('con', inherits = FALSE) ) {DBI::dbDisconnect(con)}, add = TRUE)
-  on.exit(if ( exists('tmp', inherits = FALSE) ) {unlink(tmp)}, add = TRUE)
-  if ( isTRUE(trustedconnection) & isTRUE(azure) ) {
-    stop('trustedconnection and azure cannot both be TRUE')
+bcpImport <- function(
+  x,
+  connectargs,
+  table,
+  fieldterminator = '\t',
+  rowterminator = ifelse(.Platform$OS.type == 'windows',
+    '\r\n', '\n'),
+  overwrite = FALSE,
+  spatialtype = c('geometry', 'geography'),
+  bcpOptions = list(
+    '-b', 1000,
+    '-a', 4096,
+    '-m', 10
+  ),
+  ...) {
+  on.exit(
+    if (exists('tmp', inherits = FALSE)) {
+      unlink(tmp)
+    },
+    add = TRUE)
+  if (missing(connectargs)) {
+    stop('connectargs is missing. See ?bcputility::makeConnectArgs.')
   }
-  if ( isTRUE(trustedconnection) ) {
-    bcpArgs <- list('-T')
-    con <- DBI::dbConnect(odbc::odbc(),
-                          driver = driver,
-                          server = server,
-                          database = database,
-                          trusted_connection = 'yes')
-  } else if ( isTRUE(azure) ) {
-    bcpArgs <- list('-G', '-U', shQuote(username), '-P', shQuote(password))
-    con <- DBI::dbConnect(odbc::odbc(),
-                          driver = driver,
-                          server = server,
-                          database = database,
-                          UID = username,
-                          PWD = password,
-                          Authentication = 'ActiveDirectoryPassword')
-
-  } else {
-    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
-    con <- DBI::dbConnect(odbc::odbc(),
-                          driver = driver,
-                          server = server,
-                          database = database,
-                          UID = username,
-                          PWD = password)
-  }
-  # convert to sql class early for Id
-  if ( inherits(table, 'Id') ) {
-    table <- DBI::SQL(sprintf('%s.%s',
-                              table@name[['schema']],
-                              table@name[['table']])
-    )
-  }
-  bcpArgs <- append(bcpArgs,
-                    list(
-                      '-c',
-                      '-b', batchsize,
-                      '-a', packetsize))
-  isSpatial <- inherits(x, 'sf')
-  if ( inherits(x, 'data.frame') ) {
+  bcp <- findUtility('bcp')
+  # syntax differs for the two utilities
+  bcpArgs <- mapConnectArgs(connectargs = connectargs, utility = 'bcp')
+  isSpatial <- methods::is(x, 'sf')
+  if (methods::is(x, 'data.frame')) {
     tmp <- tempfile(fileext = '.dat')
     fileName <- tmp
-    if ( isSpatial ) {
+    if (isSpatial) {
       spatialtype <- match.arg(spatialtype)
       srid <- sf::st_crs(x)$epsg
-      if ( is.null(srid) | !is.numeric(srid) ) {
-        stop('Only EPSGs are supported for SQL Server SRIDs. Check with sf::st_crs and change projection with sf::st_transform.')
+      if (is.null(srid) || !is.numeric(srid)) {
+        stop('Only EPSGs are supported for SQL Server SRIDs.
+          Check with sf::st_crs and change projection with sf::st_transform.')
       }
       geometryCol <- attr(x, 'sf_column')
-      binaryCol <- sprintf('%sBinary', geometryCol)
+      binaryCol <- sprintf('%sWkb', geometryCol)
       x <- data.table::data.table(x)
-      x[[binaryCol]] <- sf::st_as_binary(x[[geometryCol]], hex = TRUE)
-      x[[geometryCol]] <- NA
+      data.table::set(x = x, j = binaryCol,
+        value = sf::st_as_binary(x[[geometryCol]], hex = TRUE))
+      data.table::set(x = x, j = geometryCol, value = NULL)
     }
     data.table::fwrite(x,
                        fileName,
                        sep = fieldterminator,
                        eol = rowterminator,
+                       logical01 = TRUE,
                        col.names = FALSE,
                        dateTimeAs = 'write.csv')
   } else {
     stopifnot(file.exists(x))
     fileName <- x
     # check data types
-    x <- data.table::fread(fileName, nrows = 0)
+    # this isn't currently working
+    x <- data.table::fread(fileName, nrows = 100000)
   }
+  # must use -c character storage for file type
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
-                                  '-r', shQuote(rowterminator)))
-  bcpArgs <- append(bcpArgs, list(table,
-                                  'in', shQuote(fileName),
-                                  '-S', server,
-                                  '-d', database), after = 0)
-  if ( isTRUE(regional) ) {
-    bcpArgs <- append(bcpArgs, list('-R'))
-  }
-  dbTypes <- DBI::dbDataType(con, x)
-  if ( isSpatial ) {
-    dbTypes[[geometryCol]] <- spatialtype
-    dbTypes[[binaryCol]] <- 'varbinary(max)'
-  }
-  # used in check later for spatial data writes
-  append <- DBI::dbExistsTable(con, table) & !overwrite
-  if ( isTRUE(overwrite) ) {
-    if ( DBI::dbExistsTable(con, table) ) {
-      DBI::dbRemoveTable(con, name = table)
+                                  '-r', shQuote(rowterminator),
+                                  '-c'))
+  bcpArgs <- append(bcpArgs, list(quoteTable(table = table),
+    'in', shQuote(fileName)), after = 0)
+  tableExists <-  checkTableExists(connectargs = connectargs,
+    table = table)
+  append <- tableExists && isFALSE(overwrite)
+  if (isFALSE(append)) {
+    # guess sql server data types
+    if (isSpatial) {
+      dbTypes <- mapDataTypes(x = x[, !names(x) %in% binaryCol])
+      dbTypes[[binaryCol]] <- 'varbinary(max)'
+    } else {
+      dbTypes <- mapDataTypes(x = x)
     }
-    DBI::dbCreateTable(con, name = table, fields = dbTypes)
+    # delete table if overwrite is true
+    if (isTRUE(overwrite) && isTRUE(tableExists)) {
+      dropOutput <- dropTable(connectargs = connectargs, table = table,
+        stderr = TRUE)
+      if (length(dropOutput) != 0) {
+        stop(paste(dropOutput, collapse = ' '))
+      }
+    }
+    # create empty table
+    createOutput <- createTable(connectargs = connectargs,
+      table = table, coltypes = dbTypes, stderr = TRUE)
+    if (length(createOutput) != 0) {
+      stop(paste(createOutput, collapse = ' '))
+    }
   }
-  if ( !DBI::dbExistsTable(con, table) ) {
-    DBI::dbCreateTable(con, name = table, fields = dbTypes)
-  }
-  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '), sep = '\n')
-  bcp <- 'bcp'
-  if ( !is.null(getOption('bcputility.bcp.path')) ) {
-    bcp <- getOption('bcputility.bcp.path')
-  }
-  if ( Sys.which(bcp) == '' ) {
-    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
-  }
+  # add optional args
+  bcpArgs <- append(bcpArgs, bcpOptions)
   output <- suppressWarnings(system2(bcp, args = bcpArgs, ...))
-  if ( isSpatial & !append) {
-    # quote with brackets for table name
-    # ignored when passing DBI::SQL('schema.table')
-    if ( !inherits(table, 'SQL') ) {
-      table <- DBI::SQL(sprintf('[%s]', table))
+  if (isSpatial && !append) {
+    # update empty geometry column with binary data and clean up
+    geoOutput <- convertGeoCol(connectargs = connectargs,
+      table = table, geometrycol = geometryCol, binarycol = binaryCol,
+      spatialtype = spatialtype, srid = srid, stdout = FALSE, stderr = TRUE)
+    if (length(geoOutput) != 0) {
+      stop(paste(geoOutput, collapse = ' '))
     }
-    DBI::dbExecute(
-      con,
-      sprintf('UPDATE %s SET [%s] = %s::STGeomFromWKB([%s], %s)',
-              table, geometryCol, spatialtype, binaryCol, srid)
-    )
-    if ( spatialtype == 'geography' ) {
-      DBI::dbExecute(
-        con,
-        sprintf('UPDATE %s SET [%s] = [%s].MakeValid().ReorientObject()
-                 WHERE [%s].MakeValid().EnvelopeAngle() > 90;',
-                table, geometryCol, geometryCol, geometryCol)
-      )
-    }
-    invisible(DBI::dbExecute(
-      con,
-      sprintf('ALTER TABLE %s DROP COLUMN [%s]',
-              table, binaryCol)
-    ))
   }
   output
 }
-
 
 #' Export data from SQL Server
 #'
@@ -281,13 +193,9 @@ bcpImport <- function(x,
 #'
 #' output file name
 #'
-#' @param server
+#' @param connectargs
 #'
-#' the instance of SQL Server to which to connect
-#'
-#' @param database
-#'
-#' Specifies the database to connect to
+#' named list of connection arguments. See \link[bcputility]{makeConnectArgs}.
 #'
 #' @param table
 #'
@@ -298,18 +206,6 @@ bcpImport <- function(x,
 #' Transact-SQL query that returns a result set. Ignored if
 #' table is specified.
 #'
-#' @param trustedconnection
-#'
-#' use integrated security, username and password are not required
-#'
-#' @param username
-#'
-#' login ID
-#'
-#' @param password
-#'
-#' password for login ID
-#'
 #' @param fieldterminator
 #'
 #' character separator for columns
@@ -318,16 +214,9 @@ bcpImport <- function(x,
 #'
 #' character separator for rows--new lines
 #'
-#' @param datatypes
+#' @param bcpOptions
 #'
-#' the format of datatypes,
-#' char performs the operation using a character data type,
-#' nchar performs the bulk copy operation using Unicode characters
-#'
-#' @param azure
-#'
-#' use Azure Active Directory authentication, does not work with integrated
-#' authentication
+#' list of additional options to pass to the \code{bcp} utility. See details.
 #'
 #' @param ...
 #'
@@ -337,44 +226,39 @@ bcpImport <- function(x,
 #'
 #' No return value. Operations from bcp are printed to console; see
 #' \code{...} to redirect output
+
+#' @details
+#'
+#' The \code{bcpOptions} allows the user to include additional arguments for the
+#' call to \code{system2}. Please refer to
+#' \url{https://learn.microsoft.com/en-us/sql/tools/bcp-utility}.
+#' The default options are set
+#' to the defaults for \code{bcp} CLI. \code{-b} refers to
+#' number of rows to write at a time; 10,000 to 50,000 is a
+#' starting recommendation. \code{-a} refers to size of packets to be sent in
+#' bytes. \code{-e} refers to the maximum number of errors before failure.
 #'
 #' @export
 #'
-#'
-#' @examples
-#' \dontrun{
-#' bcpExport('myfile.tsv',
-#'           server = server,
-#'           database = database,
-#'           table = 'mytable',
-#'           fieldterminator = '|',
-#'           stdout = FALSE,
-#'           datatypes = 'char')
-#' }
-bcpExport <- function(file,
-                      server,
-                      database,
-                      table,
-                      query,
-                      trustedconnection = TRUE,
-                      username,
-                      password,
-                      fieldterminator = '\t',
-                      rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
-                      datatypes = c('char', 'nchar'),
-                      azure = FALSE,
-                      ...) {
-  if ( isTRUE(trustedconnection) ) {
-    bcpArgs <- list('-T')
-  } else {
-    bcpArgs <- list('-U', shQuote(username), '-P', shQuote(password))
+bcpExport <- function(
+  file,
+  connectargs,
+  table,
+  query,
+  fieldterminator = '\t',
+  rowterminator = ifelse(.Platform$OS.type == 'windows', '\r\n', '\n'),
+  bcpOptions = list(
+    '-c',
+    '-b', 1000,
+    '-a', 4096,
+    '-m', 10
+  ),
+  ...) {
+  if (missing(connectargs)) {
+    stop('connectargs is missing. See ?bcputility::makeConnectArgs.')
   }
-  datatypes <- match.arg(datatypes)
-  if ( datatypes == 'char' ) {
-    bcpArgs <- append(bcpArgs, list('-c'))
-  } else {
-    bcpArgs <- append(bcpArgs, list('-w'))
-  }
+  bcp <- findUtility('bcp')
+  bcpArgs <- mapConnectArgs(connectargs = connectargs, utility = 'bcp')
   bcpArgs <- append(bcpArgs,
                     list(
                       '-t', shQuote(fieldterminator),
@@ -382,28 +266,373 @@ bcpExport <- function(file,
                     )
   )
   outArg <- 'out'
-  if ( missing(table) ) {
+  if (missing(table)) {
     table <- shQuote(query)
     outArg <- 'queryout'
   }
   bcpArgs <- append(bcpArgs, list(table,
-                                  outArg, shQuote(file),
-                                  '-S', server,
-                                  '-d', database), after = 0)
-  if ( isTRUE(trustedconnection) & isTRUE(azure) ) {
-    stop('trustedconnection and azure cannot both be TRUE')
-  }
-  if ( isTRUE(azure) ) {
-    bcpArgs <- append(bcpArgs, '-G')
-  }
-  bcp <- 'bcp'
-  if ( !is.null(getOption('bcputility.bcp.path')) ) {
-    bcp <- getOption('bcputility.bcp.path')
-  }
-  if ( Sys.which(bcp) == '' ) {
-    stop('bcp was not found or invalid path. Add bcp to path or to "bcputility.bcp.path" option.')
-  }
-  #cat(paste(append(bcpArgs, bcp, after = 0), collapse = ' '))
+                                  outArg, shQuote(file)), after = 0)
+  # add optional args
+  bcpArgs <- append(bcpArgs, bcpOptions)
   system2(bcp, args = bcpArgs, ...)
 }
+#' Check bcp and sqlcmd versions
+#'
+#' @param ...
+#'
+#' arguments to pass \link[base]{system2}
+#'
+#' @export
+#'
+#' @name SQLServerCLIVersions
+#'
+bcpVersion <- function(...) {
+  bcp <- findUtility('bcp')
+  system2(command = bcp, args = list('-v'), ...)
+}
+#' @export
+#'
+#' @rdname SQLServerCLIVersions
+sqlcmdVersion <- function(...) {
+  sqlcmd <- findUtility('sqlcmd')
+  system2(command = sqlcmd, args = list('-?'), ...)
+}
 
+#' Determine SQL Server data types from data frame. Follows SQL Server
+#' data type size constraints and chooses the smallest data type size.
+#'
+#' @param x
+#'
+#' data.frame object
+#'
+#' @param coltypes
+#'
+#' vector with names of columns to override the default data type mapping
+#'
+#' @return
+#'
+#' character vector with names of columns
+#'
+#' @export
+#'
+#' @name mapDataTypes
+#'
+#' @examples
+#'
+#' mapDataTypes(data.frame(
+#'   int = 1:5L,
+#'   numeric = seq(0, 1, length.out = 5),
+#'   character = LETTERS[1:5],
+#'   factor = paste(LETTERS[1:5], LETTERS[1:5], sep = ''),
+#'   logical = c(TRUE, FALSE, TRUE, FALSE, TRUE),
+#'   date = seq(Sys.Date() - 4, Sys.Date(), 1L),
+#'   datetime = seq(Sys.time() - 5, Sys.time(), length.out = 5)
+#'   )
+#' )
+mapDataTypes <- function(x, coltypes) {
+  sqlTypes <- vapply(x, FUN = function(.x) {
+    # order is important, returns left-most match
+    types <- c('character', 'factor', 'integer', 'numeric', 'logical', 'Date',
+               'POSIXct', 'sfc', 'blob')
+    dataType <- Find(f = function(.type) {
+      methods::is(object = .x, class2 = .type)
+    }, types, nomatch = 'nomatch')
+    switch(dataType,
+      character = varChar(.x),
+      factor = varChar(.x),
+      numeric = 'FLOAT',
+      integer = int(.x),
+      logical = 'BIT',
+      Date = 'DATE',
+      POSIXct = 'DATETIME',
+      sfc = 'VARBINARY(MAX)',
+      blob = varBinary(.x),
+      stop('Data type not supported.')
+    )
+  }, FUN.VALUE = character(1))
+  if (!missing(coltypes)) {
+    sqlTypes[names(coltypes)] <- coltypes
+  }
+  sqlTypes
+}
+#' @export
+#'
+#' @rdname mapDataTypes
+varChar <- function(x) {
+  n <- suppressWarnings(max(nchar(as.character(x)), na.rm = TRUE))
+  if (is.infinite(n)) {
+    n <- 1L
+  }
+  if (n > 8000) {
+    n <- 'MAX'
+  }
+  sprintf('VARCHAR(%s)', n)
+}
+#' @export
+#'
+#' @rdname mapDataTypes
+varBinary <- function(x) {
+  n <- max(lengths(x), na.rm = TRUE)
+  if (n > 8000) {
+    n <- 'MAX'
+  }
+  sprintf('VARBINARY(%s)', n)
+}
+#' @export
+#'
+#' @rdname mapDataTypes
+int <- function(x) {
+  # if all missing assume TINYINT
+  # range returns c(Inf, -Inf)
+  xRange <- suppressWarnings(range(x, na.rm = TRUE))
+  if (xRange[1] >= 0 && xRange[2] <= 255) {
+    'TINYINT'
+  } else if (xRange[1] >= (-2^15) && xRange[2] <= (2^15 - 1)) {
+    'SMALLINT'
+  } else if (xRange[1] >= (-2^31) && xRange[2] <= (2^31 - 1)) {
+    'INTEGER'
+  } else if (xRange[1] >= (-2^63) && xRange[2] <= (2^63 - 1)) {
+    'BIGINT'
+  } else {
+    'Invalid integer range.'
+  }
+}
+
+#' Create or drop table
+#'
+#' @param connectargs
+#'
+#' named list of connection arguments. See \link[bcputility]{makeConnectArgs}.
+#'
+#' @param table
+#'
+#' Name of the source table when importing from  SQL Server. For specifying the
+#' schema in the table name see \code{<schema>.<table>} and if not specified the
+#' default is "dbo".
+#'
+#' @param coltypes
+#'
+#' character vector of data types with the column names as list/vector names.
+#' Use \link[bcputility]{mapDataTypes} or refer to for proper format.
+#'
+#' @param ...
+#'
+#' arguments to pass to \link[base]{system2}
+#'
+#' @return
+#'
+#' No return value. Operations from bcp are printed to console; see
+#' \code{...} to redirect output
+#'
+#' @export
+#'
+createTable <- function(connectargs, table, coltypes, ...) {
+  sqlcmd <- findUtility('sqlcmd')
+  quotedTable <- quoteTable(table)
+  query <- sprintf(
+    'CREATE TABLE %s (%s);',
+    quotedTable,
+    paste(names(coltypes), coltypes, sep = ' ', collapse = ', ')
+  )
+  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
+    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  system2(command = sqlcmd, args = sqlcmdArgs, ...)
+}
+#' @rdname createTable
+#'
+#' @export
+#'
+dropTable <- function(connectargs, table, ...) {
+  sqlcmd <- findUtility('sqlcmd')
+  quotedTable <- quoteTable(table)
+  query <- sprintf('DROP TABLE %s;', quotedTable)
+  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
+    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  system2(command = sqlcmd, args = sqlcmdArgs, ...)
+}
+#' @rdname createTable
+#'
+#' @export
+#'
+checkTableExists <- function(connectargs, table) {
+  sqlcmd <- findUtility('sqlcmd')
+  # IF OBJECT_ID('*objectName*', 'U') IS NOT NULL
+  quotedTable <- quoteTable(table)
+  quotedTable <- strsplit(x = quotedTable, split = '\\.')[[1]]
+  if (length(quotedTable) > 2) {
+    stop('Only `<table>` and `<schema>.<table>` are supported for table
+      argument.')
+  }
+  if (length(quotedTable) < 2) {
+    quotedTable <- append(quotedTable, '[dbo]', after = 0)
+  }
+  query <- sprintf('EXECUTE sp_tables @table_name = %s, @table_owner = %s',
+    quotedTable[2], quotedTable[1])
+  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
+    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  system2(command = sqlcmd, args = sqlcmdArgs, stdout = TRUE)[[3]] != ''
+}
+readTable <- function(connectargs, table, ...) {
+  sqlcmd <- findUtility('sqlcmd')
+  quotedTable <- quoteTable(table)
+  query <- sprintf('SET NOCOUNT ON; SELECT * FROM %s;', quotedTable)
+  queryHeaders <- sprintf('SET NOCOUNT ON; SELECT TOP 0 * FROM %s;',
+    quotedTable)
+  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
+    utility = 'sqlcmd'),
+    values = list(
+      '-s', shQuote(','),
+      '-W',
+      '-r', 1,
+      '-V', 1
+      ))
+  sqlCmdArgsHeader <- append(sqlcmdArgs, list('-Q', shQuote(queryHeaders)))
+  sqlcmdArgsData <- append(sqlcmdArgs, list('-Q', shQuote(query), '-h', '-1'))
+  data.table::fread(
+    cmd = paste(append(shQuote(sqlcmd), sqlcmdArgsData), collapse = ' '),
+    header = FALSE,
+    col.names = strsplit(x = system2(command = sqlcmd, args = sqlCmdArgsHeader,
+      stdout = TRUE), split = ',')[[1]])
+}
+#' Create a named list of connection arguments to translate to bcp and
+#' sqlcmd options
+#'
+#' @param server
+#'
+#' the instance of SQL Server to which to connect
+#'
+#' @param database
+#'
+#' specifies the database to connect to
+#'
+#' @param username
+#'
+#' login ID
+#'
+#' @param password
+#'
+#' password for login ID
+#'
+#' @param trustedconnection
+#'
+#' use integrated security, username and password are not required
+#'
+#' @param trustservercert
+#'
+#' trust the server certificate
+#'
+#' @param azure
+#'
+#' use Azure Active Directory authentication, does not work with integrated
+#' authentication.
+#'
+#' @return
+#'
+#' a list with connection arguments
+#'
+#' @export
+makeConnectArgs <- function(server, database, username, password,
+  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE) {
+  if (isTRUE(trustedconnection) && isTRUE(azure)) {
+    stop('trustedconnection and azure cannot both be TRUE')
+  }
+  connectArgs <- list(server = server, database = database)
+  if (isTRUE(trustedconnection)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(trustedconnection = trustedconnection))
+  } else {
+    connectArgs <- append(x = connectArgs,
+      values = list(username = username, password = password))
+  }
+  if (isTRUE(azure)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(azure = azure))
+  }
+  if (isTRUE(trustservercert)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(trustservercert = trustservercert))
+  }
+  connectArgs
+}
+
+# internal functions
+quoteTable <- function(table) {
+  paste(lapply(strsplit(table, split = '\\.')[[1]], function(x) {
+    if (substring(text = x, first = 1, 1) == '[' &&
+        substring(text = x,
+                  first = nchar(x),
+                  last = nchar(x)) == ']') {
+      return(x)
+    }
+    sprintf('[%s]', x)
+  }), collapse = '.')
+}
+convertGeoCol <- function(connectargs, table, geometrycol, binarycol,
+  spatialtype, srid, ...) {
+  sqlcmd <- findUtility(utility = 'sqlcmd')
+  quotedTable <- quoteTable(table)
+  query <- sprintf('
+  SET NOCOUNT ON;
+  ALTER TABLE %1$s ADD [%2$s] %3$s;
+  GO
+  UPDATE %1$s SET [%2$s] = %3$s::STGeomFromWKB([%4$s], %5$s);
+  ALTER TABLE %1$s DROP COLUMN [%4$s];',
+    quotedTable, geometrycol, spatialtype, binarycol, srid)
+  if (spatialtype == 'geography') {
+    correctionQuery <- sprintf(
+      '
+     UPDATE %1$s SET [%2$s] = [%2$s].MakeValid().ReorientObject().MakeValid()
+     WHERE [%2$s].MakeValid().EnvelopeAngle() > 90;',
+      quotedTable, geometrycol)
+    query <- sprintf('%s %s', query, correctionQuery)
+  }
+  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
+    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  system2(command = sqlcmd, args = sqlcmdArgs, ...)
+}
+mapConnectArgs <- function(connectargs, utility = c('sqlcmd', 'bcp')
+  ) {
+  utility <- match.arg(utility)
+  argSyntax <- switch(utility,
+    sqlcmd = list(server = '-S',
+      database = '-d',
+      trustedconnection = '-E',
+      username = '-U',
+      password = '-P',
+      azure = '-G',
+      trustservercert = '-C'),
+    bcp = list(server = '-S',
+      database = '-d',
+      trustedconnection = '-T',
+      username = '-U',
+      password = '-P',
+      azure = '-G',
+      trustservercert = '-u'),
+    stop('Unsupported utility')
+  )
+  argSyntax <- argSyntax[names(connectargs)]
+  unlist(
+    Map(function(argname, argsyntax, argvalue) {
+      if (is.logical(argvalue)) {
+        argsyntax
+      } else if (is.character(argvalue)) {
+        list(argsyntax, shQuote(argvalue))
+      } else {
+        stop(sprintf('Invalid argument for %s option.', argname))
+      }
+    }, argname = names(connectargs), argsyntax = argSyntax,
+      argvalue = connectargs),
+    recursive = FALSE, use.names = FALSE
+  )
+}
+findUtility <- function(utility) {
+  optionName <- sprintf('bcputility.%s.path', utility)
+  if (!is.null(getOption(optionName))) {
+    utility <- getOption(optionName)
+  }
+  if (Sys.which(utility) == '') {
+    stop(sprintf('%1$s was not found or invalid path. Add %1$s to path or to
+    "%2$s" option.', utility, optionName))
+  }
+  utility
+}
