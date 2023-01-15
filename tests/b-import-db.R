@@ -1,6 +1,6 @@
 library(bcputility)
 testLocal <- TRUE
-if (!identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
+if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   tryDropTable <- function(connectargs, table) {
     if (checkTableExists(connectargs, table)) {
       dropTable(connectargs, table)

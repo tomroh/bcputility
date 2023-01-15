@@ -1,6 +1,6 @@
 library(bcputility)
 init <- FALSE
-if (!identical(Sys.getenv("NOT_CRAN"), "true") && isTRUE(init)) {
+if (identical(Sys.getenv("NOT_CRAN"), "true") && isTRUE(init)) {
   # set up connnect args
   server <- Sys.getenv("MSSQL_SERVER")
   database <- Sys.getenv('MSSQL_DB')
