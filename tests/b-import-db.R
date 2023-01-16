@@ -41,20 +41,21 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
     n <- 100000
     importTable <- data.frame(
       int = sample(x = seq(1L, 10000L, 1L), size = n, replace = TRUE),
-      numeric = sample(x = seq(0, 1, length.out = n/100), size = n,
+      numeric = sample(x = seq(0, 1, length.out = n / 100), size = n,
         replace = TRUE),
       character = sample(x = state.abb, size = n, replace = TRUE),
       factor = sample(x = factor(x = month.abb, levels = month.abb),
         size = n, replace = TRUE),
-      #logical = sample(x = c(TRUE, FALSE), size = n, replace = TRUE),
+      logical = sample(x = c(TRUE, FALSE), size = n, replace = TRUE),
       date = sample(x = seq(as.Date('2022-01-01'), as.Date('2022-12-31'),
         by = 'days'), size = n, replace = TRUE),
       datetime = sample(x = seq(as.POSIXct('2022-01-01 00:00:00'),
-        as.POSIXct('2022-12-31 23:59:59'), by = 'min'), size = n, replace = TRUE)
+        as.POSIXct('2022-12-31 23:59:59'), by = 'min'), size = n,
+        replace = TRUE)
     )
     sfTable <- sf::st_read(system.file(package = 'sf', 'gpkg/nc.gpkg'),
       quiet = TRUE)
-    sfTable <- sfTable[sample.int(nrow(sfTable), 10000, replace = TRUE),]
+    sfTable <- sfTable[sample.int(nrow(sfTable), 10000, replace = TRUE), ]
     # bcpImport 1000
     bcpImport(
       importTable,
@@ -65,8 +66,10 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
     ) |>
       identical(0L) |>
       stopifnot()
-    bcputility:::readTable(connectargs = connectArgs, table = 'importTable1000') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'importTableInit')) |>
+    bcputility:::readTable(connectargs = connectArgs,
+      table = 'importTable1000') |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'importTableInit')) |>
       stopifnot()
     # bcpImport 10000
     bcpImport(
@@ -82,8 +85,10 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
     ) |>
       identical(0L) |>
       stopifnot()
-    bcputility:::readTable(connectargs = connectArgs, table = 'importTable10000') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'importTableInit')) |>
+    bcputility:::readTable(connectargs = connectArgs,
+      table = 'importTable10000') |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'importTableInit')) |>
       stopifnot()
     # bcpImportGeometry
     bcpImport(
@@ -96,7 +101,8 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
       identical(0L) |>
       stopifnot()
     bcputility:::readTable(connectargs = connectArgs, table = 'sfTableGeom') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'sfTableGeomInit')) |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'sfTableGeomInit')) |>
       stopifnot()
     # bcpImportGeography
     bcpImport(
@@ -110,7 +116,8 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
       identical(0L) |>
       stopifnot()
     bcputility:::readTable(connectargs = connectArgs, table = 'sfTableGeog') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'sfTableGeogInit')) |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'sfTableGeogInit')) |>
       stopifnot()
     # test sql login
     loginConnectArgs <- makeConnectArgs(server = server, database = database,
@@ -124,8 +131,10 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
     ) |>
       identical(0L) |>
       stopifnot()
-    bcputility:::readTable(connectargs = connectArgs, table = 'importTableLogin') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'importTableInit')) |>
+    bcputility:::readTable(connectargs = connectArgs,
+      table = 'importTableLogin') |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'importTableInit')) |>
       stopifnot()
     # bcpImport schema
     bcpImport(
@@ -137,8 +146,10 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
     ) |>
       identical(0L) |>
       stopifnot()
-    bcputility:::readTable(connectargs = connectArgs, table = 'test.importTable') |>
-      identical(bcputility:::readTable(connectargs = connectArgs, table = 'importTableInit')) |>
+    bcputility:::readTable(connectargs = connectArgs,
+      table = 'test.importTable') |>
+      identical(bcputility:::readTable(connectargs = connectArgs,
+        table = 'importTableInit')) |>
       stopifnot()
     # test return output
     # fail no capture

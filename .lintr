@@ -5,6 +5,5 @@ linters: linters_with_defaults(
     )
 encoding: "UTF-8"
 exclusions: list(
-    "inst/",
-    "tests/"
+    "inst/"
   )

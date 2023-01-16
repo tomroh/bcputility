@@ -3,18 +3,15 @@ testLocal <- TRUE
 if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   testExport <- function(connectargs) {
     on.exit(
-      expr = file.remove(
-        c(
-          'inst/benchmarks/queryTable.csv',
-          'inst/benchmarks/queryTableNchar.csv',
-          'inst/benchmarks/exportTableChar.csv',
-          'inst/benchmarks/exportTableNchar.csv')) |>
-      invisible() |>
-      suppressWarnings(),
+      expr = file.remove(tmpFiles) |>
+        invisible() |>
+        suppressWarnings(),
       add = TRUE)
+    tmpFiles <- tempfile(c('exportTableChar', 'exportTableNChar',
+      'queryTableChar', 'queryTableNChar'), fileext = '.csv')
     # bcpExportChar
     bcpExport(
-      'inst/benchmarks/exportTableChar.csv',
+      tmpFiles[1],
       connectargs = connectArgs,
       table = 'exportTableInit',
       fieldterminator = ',',
@@ -24,7 +21,7 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
       stopifnot()
     # bcpExportNchar
     bcpExport(
-      'inst/benchmarks/exportTableNchar.csv',
+      tmpFiles[2],
       connectargs = connectArgs,
       table = 'exportTableInit',
       fieldterminator = ',',
@@ -33,18 +30,18 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
         '-w',
         '-b', 1000,
         '-a', 4096,
-        '-e', 10
+        '-m', 0
       )
     ) |>
       identical(0L) |>
       stopifnot()
-    data.table::fread('inst/benchmarks/exportTableChar.csv') |>
-      identical(data.table::fread('inst/benchmarks/exportTableInit.csv')) |>
+    data.table::fread(tmpFiles[1]) |>
+      identical(data.table::data.table(bcputility:::.exportTableInit)) |>
       stopifnot()
     # test query export
     query <- 'SELECT * FROM [dbo].[exportTableInit] WHERE int < 1000'
     # bcpExportChar
-    bcpExport(file = 'inst/benchmarks/queryTable.csv',
+    bcpExport(file = tmpFiles[3],
       connectargs = connectArgs, query = query, fieldterminator = ',',
       stdout = FALSE
     ) |>
@@ -52,7 +49,7 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
       stopifnot()
     # bcpExportQueryNchar
     bcpExport(
-      'inst/benchmarks/queryTableNchar.csv',
+      tmpFiles[4],
       connectargs = connectArgs,
       query = query,
       fieldterminator = ',',
@@ -61,13 +58,13 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
         '-w',
         '-b', 1000,
         '-a', 4096,
-        '-e', 10
+        '-m', 0
       )
     ) |>
       identical(0L) |>
       stopifnot()
-    data.table::fread('inst/benchmarks/queryTable.csv') |>
-      identical(data.table::fread('inst/benchmarks/queryTableInit.csv')) |>
+    data.table::fread(tmpFiles[3]) |>
+      identical(data.table::data.table(bcputility:::.queryTableInit)) |>
       stopifnot()
   }
   # set up connnect args
