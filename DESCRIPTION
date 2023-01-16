@@ -8,6 +8,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.2
 SystemRequirements: bcp Utility
+Depends: R (>= 3.5.0)
 Imports: data.table, sf, methods
 Suggests: blob
 URL: https://bcputility.roh.engineering, https://github.com/tomroh/bcputility
