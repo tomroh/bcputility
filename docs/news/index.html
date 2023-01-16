@@ -51,9 +51,7 @@
 <h2 class="page-header" data-toc-text="0.4.0" id="bcputility-040">bcputility 0.4.0<a class="anchor" aria-label="anchor" href="#bcputility-040"></a></h2>
 <ul><li><p>Override/set path to sqlcmd with <code>options(bcputility.sqlcmd.path = "&lt;path-to-sqlcmd&gt;")</code></p></li>
 <li><p>Added <code>bcpVersion</code> and <code>sqlcmdVersion</code> to check versions.</p></li>
-<li>
-<p>Specify tables without schema strictly as a character vector of size 1 e.g. “<schema>.</schema></p>
-<table class="table"><p>“. The schema and table will be quoted although special characters are not recommended except for”_“.</p>
+<li><p>Specify tables without schema strictly as a character vector of size 1 e.g. <code>"&lt;schema&gt;.&lt;table&gt;"</code>. The schema and table will be quoted although special characters are not recommended except for “_“.</p></li>
 <li><p>Tests have been added that can run against a local instance of SQL Server. These do not work without it as SQL Server is a client/server configuration.</p></li>
 <li><p>The README has been updated for new syntax and updated benchmarks.</p></li>
 <li><p><code>bcpImport</code> and <code>bcpExport</code> gain a bcpOptions argument that allows the user to include any options from the CLI. See documentation for formatting and specification.</p></li>
@@ -63,30 +61,27 @@
 <li><p><code>createTable</code>, <code>dropTable</code>, and <code>checkTableExists</code> have been added for internals and convenience. The primary purpose would be to define an empty table with user-defined types that <code>bcpImport</code> could append to.</p></li>
 <li><p>logicals no longer need to be converted from <code>FALSE/TRUE</code> to <code>0/1</code> before importing in-memory data.</p></li>
 <li><p>The argument azure was added to <code>bcpImport</code> and <code>bcpExport</code> for Azure Active Directory authentication. This only works for username and password authentication.</p></li>
-
-
-<div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.0" id="bcputility-0-4-0">bcputility 0.3.0<a class="anchor" aria-label="anchor" href="#bcputility-0-4-0"></a></h2>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.3.0" id="bcputility-030">bcputility 0.3.0<small>2022-02-20</small><a class="anchor" aria-label="anchor" href="#bcputility-030"></a></h2>
 <ul><li><p><code>bcpImport</code> now returns the output of system2 for all specifications of stderr and stdout</p></li>
 <li><p>added documentation for using schema and <code><a href="https://dbi.r-dbi.org/reference/Id.html" class="external-link">DBI::Id</a></code> is now supported</p></li>
 <li><p>trusted connections are now compatible with newer sql server drivers as the default for all drivers is now <code>trusted_connection='yes'</code></p></li>
 <li><p>user name and passwords are now quoted with <code>shQuote</code> so special characters are handled across platforms</p></li>
 <li><p>added check to see if bcp program can be found</p></li>
 </ul></div>
-<div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.0" id="bcputility-0-4-0-1">bcputility 0.2.0<a class="anchor" aria-label="anchor" href="#bcputility-0-4-0-1"></a></h2>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.2.0" id="bcputility-020">bcputility 0.2.0<small>2021-08-06</small><a class="anchor" aria-label="anchor" href="#bcputility-020"></a></h2>
 <ul><li><p>set the path to the bcp utility with the bcputility.bcp.path option</p></li>
 <li><p>added links to source code, bug reports, and documentation site</p></li>
 <li><p>rowterminator and fieldterminator are no passed to <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">data.table::fwrite</a></code> if data is in memory</p></li>
 <li><p>Added support for geometry/geography data import for ‘sf’ objects</p></li>
 </ul></div>
-<div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.0" id="bcputility-0-4-0-2">bcputility 0.1.0<a class="anchor" aria-label="anchor" href="#bcputility-0-4-0-2"></a></h2>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.0" id="bcputility-010">bcputility 0.1.0<small>2021-07-13</small><a class="anchor" aria-label="anchor" href="#bcputility-010"></a></h2>
 <ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
 <li>Added <code>bcpImport</code> to import data to SQL Server</li>
 <li>Added <code>bcpExport</code> to export data from SQL Server</li>
-</ul></div>
-</table></li>
 </ul></div>
   </div>
 

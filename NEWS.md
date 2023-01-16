@@ -6,7 +6,7 @@
 * Added `bcpVersion` and `sqlcmdVersion` to check versions.
 
 * Specify tables without schema strictly as a character vector of size 1 e.g.
-"<schema>.<table>". The schema and table will be quoted although special 
+```"<schema>.<table>"```. The schema and table will be quoted although special 
 characters are not recommended except for "_".
 
 * Tests have been added that can run against a local instance of SQL Server. 
