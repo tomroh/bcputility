@@ -2,3 +2,13 @@
 
 export(bcpExport)
 export(bcpImport)
+export(bcpVersion)
+export(checkTableExists)
+export(createTable)
+export(dropTable)
+export(int)
+export(makeConnectArgs)
+export(mapDataTypes)
+export(sqlcmdVersion)
+export(varBinary)
+export(varChar)

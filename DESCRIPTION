@@ -1,13 +1,15 @@
 Package: bcputility
 Type: Package
 Title: Wrapper for SQL Server bcp Utility
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: person("Thomas", "Roh", email = "thomas@roh.engineering", role = c("aut", "cre"))
 Description: Provides functions to utilize a command line utility that does bulk inserts and exports from SQL Server databases. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2
 SystemRequirements: bcp Utility
-Imports: data.table, DBI, odbc, sf
+Depends: R (>= 3.5.0)
+Imports: data.table, sf, methods
+Suggests: blob
 URL: https://bcputility.roh.engineering, https://github.com/tomroh/bcputility
 BugReports: https://github.com/tomroh/bcputility/issues

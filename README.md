@@ -10,10 +10,10 @@
 
 
 **bcputility** is a wrapper for the command line utility program from SQL Server 
-that does bulk imports/exports. The package assumes that [bcp](https://docs.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver15)
+that does bulk imports/exports. The package assumes that [bcp](https://docs.microsoft.com/en-us/sql/tools/bcp-utility)
 is already installed and is on the system search path. For large inserts to SQL 
 Server over an ODBC connection (e.g. with the 
-"[DBI](https://db.rstudio.com/dbi/)" package), writes can take a very long time as 
+"[DBI](https://dbi.r-dbi.org/)" package), writes can take a very long time as 
 each row generates an individual insert statement. The bcp Utility greatly 
 improves performance of large writes by using bulk inserts.
 
@@ -36,11 +36,11 @@ Install the development version with:
 devtools::install_github("tomroh/bcputility")
 ```
 
-If *bcp* is not on the system path or you want to override the default, 
-set the option with the full file path:
+If *bcp* and *sqlcmd* is not on the system path or you want to override the default, set the option with the full file path:
 
 ```r
 options(bcputility.bcp.path = "<path-to-bcp>")
+options(bcputility.sqlcmd.path = "<path-to-sqlcmd>")
 ```
 
 ## Benchmarks
@@ -56,56 +56,84 @@ improved.
 ```r
 library(DBI)
 library(data.table)
-library(nycflights13)
-data("flights")
-set.seed(82)
-flights <- flights[sample.int(nrow(flights), 1000000, replace = TRUE),]
-server <- 'localhost\\SQLEXPRESS'
-database <- 'Main'
+library(bcputility)
+server <- Sys.getenv('MSSQL_SERVER')
+database <- Sys.getenv('MSSQL_DB')
+driver <- 'ODBC Driver 17 for SQL Server'
+set.seed(11)
+n <- 1000000
+importTable <- data.frame(
+  int = sample(x = seq(1L, 10000L, 1L), size = n, replace = TRUE),
+  numeric = sample(x = seq(0, 1, length.out = n/100), size = n,
+    replace = TRUE),
+  character = sample(x = state.abb, size = n, replace = TRUE),
+  factor = sample(x = factor(x = month.abb, levels = month.abb),
+    size = n, replace = TRUE),
+  logical = sample(x = c(TRUE, FALSE), size = n, replace = TRUE),
+  date = sample(x = seq(as.Date('2022-01-01'), as.Date('2022-12-31'),
+    by = 'days'), size = n, replace = TRUE),
+  datetime = sample(x = seq(as.POSIXct('2022-01-01 00:00:00'),
+    as.POSIXct('2022-12-31 23:59:59'), by = 'min'), size = n, replace = TRUE)
+)
+connectArgs <- makeConnectArgs(server = server, database = database)
 con <- DBI::dbConnect(odbc::odbc(),
                       Driver = "SQL Server",
                       Server = server,
                       Database = database)
-results <- microbenchmark::microbenchmark(
+importResults <- microbenchmark::microbenchmark(
   bcpImport1000 = {
-    bcpImport(flights,
-              server = server,
-              database = database,
-              table = 'flights1',
+    bcpImport(importTable,
+              connectargs = connectArgs,
+              table = 'importTable1',
+              bcpOptions = list("-b", 1000, "-a", 4096, "-e", 10),
               overwrite = TRUE,
               stdout = FALSE)
     },
   bcpImport10000 = {
-    bcpImport(flights,
-              server = server,
-              database = database,
-              table = 'flights2',
+    bcpImport(importTable,
+              connectargs = connectArgs,
+              table = 'importTable2',
+              bcpOptions = list("-b", 10000, "-a", 4096, "-e", 10),
               overwrite = TRUE,
-              stdout = FALSE,
-              batchsize = 10000)
+              stdout = FALSE)
   },
   bcpImport50000 = {
-    bcpImport(flights,
-              server = server,
-              database = database,
-              table = 'flights3',
+    bcpImport(importTable,
+              connectargs = connectArgs,
+              table = 'importTable3',
+              bcpOptions = list("-b", 50000, "-a", 4096, "-e", 10),
               overwrite = TRUE,
-              stdout = FALSE,
-              batchsize = 50000)
+              stdout = FALSE)
+  },
+  bcpImport100000 = {
+    bcpImport(importTable,
+      connectargs = connectArgs,
+      table = 'importTable4',
+      bcpOptions = list("-b", 100000, "-a", 4096, "-e", 10),
+      overwrite = TRUE,
+      stdout = FALSE)
   },
   dbWriteTable = {
-    DBI::dbWriteTable(con, name = 'flights4', flights, overwrite = TRUE)
+    con <- DBI::dbConnect(odbc::odbc(),
+      Driver = driver,
+      Server = server,
+      Database = database,
+      trusted_connection = 'yes')
+    DBI::dbWriteTable(con, name = 'importTable5', importTable, overwrite = TRUE)
     },
-  times = 30L
+  times = 30L,
+  unit = 'seconds'
 )
+importResults
 ```
 
-|expr           |      min|       lq|     mean|   median|       uq|      max| neval|
-|:--------------|--------:|--------:|--------:|--------:|--------:|--------:|-----:|
-|bcpImport1000  | 13.83131| 14.92755| 15.59979| 15.26361| 16.50634| 17.31753|    30|
-|bcpImport10000 | 11.41458| 12.96426| 13.61049| 13.42964| 14.34338| 15.46362|    30|
-|bcpImport50000 | 10.70270| 12.46274| 13.29288| 13.10546| 13.59440| 17.85827|    30|
-|dbWriteTable   | 25.71646| 28.39663| 29.63298| 29.39512| 30.49987| 35.38698|    30|
+|expr            |       min|        lq|      mean|    median|        uq|      max| neval|
+|:---------------|---------:|---------:|---------:|---------:|---------:|--------:|-----:|
+|bcpImport1000   | 15.017385| 16.610868| 17.405555| 17.656265| 18.100990| 19.44482|    30|
+|bcpImport10000  | 10.091266| 10.657926| 10.926738| 10.916577| 11.208184| 11.46027|    30|
+|bcpImport50000  |  8.982498|  9.337509|  9.677375|  9.571526|  9.896179| 10.77709|    30|
+|bcpImport100000 |  8.769598|  9.303473|  9.562921|  9.581927|  9.855355| 10.36949|    30|
+|dbWriteTable    | 13.570956| 13.820707| 15.154505| 14.159002| 16.378986| 27.28819|    30|
 
 *Time in seconds*
 
@@ -120,76 +148,73 @@ data that is small enough to be pulled into memory.
 ```r
 exportResults <- microbenchmark::microbenchmark(
   bcpExportChar = {
-    bcpExport('test1.csv',
-              server = server,
-              database = database,
-              table = 'flights1',
+    bcpExport('inst/benchmarks/test1.csv',
+              connectargs = connectArgs,
+              table = 'importTableInit',
               fieldterminator = ',',
-              stdout = FALSE,
-              datatypes = 'char')
+              stdout = FALSE)
     },
   bcpExportNchar = {
-    bcpExport('test2.csv',
-              server = server,
-              database = database,
-              table = 'flights1',
+    bcpExport('inst/benchmarks/test2.csv',
+              connectargs = connectArgs,
+              table = 'importTableInit',
               fieldterminator = ',',
-              stdout = FALSE,
-              datatypes = 'nchar')
+              stdout = FALSE)
   },
   fwriteQuery = {
-    fwrite(DBI::dbReadTable(con, 'flights1'),
-           'test3.csv', dateTimeAs = 'write.csv',
+    fwrite(DBI::dbReadTable(con, 'importTableInit'),
+           'inst/benchmarks/test3.csv', dateTimeAs = 'write.csv',
            col.names = FALSE)
   },
-  times = 30L
+  times = 30L,
+  unit = 'seconds'
 )
+exportResults
 ```
 
-|expr           |       min|        lq|      mean|    median|       uq|       max| neval|
-|:--------------|---------:|---------:|---------:|---------:|--------:|---------:|-----:|
-|bcpExportChar  |  6.179264|  6.527793|  7.051096|  7.207091|  7.40403|  8.221965|    30|
-|bcpExportNchar |  7.127671|  7.685442|  8.240679|  8.413417|  8.54752|  9.313255|    30|
-|fwriteQuery    | 11.096326| 11.515995| 11.852508| 11.741095| 12.20761| 13.015459|    30|
+|expr           |      min|       lq|     mean|   median|       uq|      max| neval|
+|:--------------|--------:|--------:|--------:|--------:|--------:|--------:|-----:|
+|bcpExportChar  | 2.565654| 2.727477| 2.795670| 2.756685| 2.792291| 3.352325|    30|
+|bcpExportNchar | 2.589367| 2.704135| 2.765784| 2.734957| 2.797286| 3.479074|    30|
+|fwriteQuery    | 7.429731| 7.602853| 7.645852| 7.654730| 7.703634| 7.868419|    30|
 
 *Time in seconds*
 
 ### Export Query
 
 ```r
+query <- 'SELECT * FROM [dbo].[importTable1] WHERE int < 1000'
 queryResults <- microbenchmark::microbenchmark(
   bcpExportQueryChar = {
-    bcpExport('test4.csv',
-              server = server,
-              database = database,
+    bcpExport('inst/benchmarks/test4.csv',
+              connectargs = connectArgs,
               query = query,
               fieldterminator = ',',
-              stdout = FALSE,
-              datatypes = 'char')
+              stdout = FALSE)
   },
   bcpExportQueryNchar = {
-    bcpExport('test5.csv',
-              server = server,
-              database = database,
+    bcpExport('inst/benchmarks/test5.csv',
+              connectargs = connectArgs,
               query = query,
               fieldterminator = ',',
-              stdout = FALSE,
-              datatypes = 'nchar')
+              stdout = FALSE)
   },
   fwriteQuery = {
     fwrite(DBI::dbGetQuery(con, query),
-           'test6.csv', dateTimeAs = 'write.csv',
+           'inst/benchmarks/test6.csv', dateTimeAs = 'write.csv',
            col.names = FALSE)
   },
-  times = 30L
+  times = 30L,
+  unit = 'seconds'
 )
+queryResults
 ```
 
-|expr                |      min|       lq|     mean|   median|       uq|      max| neval|
-|:-------------------|--------:|--------:|--------:|--------:|--------:|--------:|-----:|
-|bcpExportQueryChar  | 2.330189| 2.335963| 2.777578| 2.444756| 3.010092| 4.892223|    30|
-|bcpExportQueryNchar | 2.666880| 2.777737| 3.435565| 2.789167| 3.443354| 7.774271|    30|
-|fwriteQuery         | 3.384254| 3.572138| 4.285159| 3.904367| 4.361619| 8.017063|    30|
+|expr                |       min|        lq|      mean|    median|        uq|       max| neval|
+|:-------------------|---------:|---------:|---------:|---------:|---------:|---------:|-----:|
+|bcpExportQueryChar  | 0.3444491| 0.4397317| 0.4557119| 0.4490924| 0.4615573| 0.7237182|    30|
+|bcpExportQueryNchar | 0.3305265| 0.4444705| 0.4412670| 0.4500690| 0.4605971| 0.4815894|    30|
+|fwriteQuery         | 0.6737879| 0.7141933| 0.7421377| 0.7311998| 0.7548233| 0.9143555|    30|
 
 *Time in seconds*
 
@@ -201,94 +226,103 @@ after import are to produce equivalent tables in the database.
 ```r
 library(sf)
 nc <- st_read(system.file("gpkg/nc.gpkg", package = "sf"))
-nc <- nc[sample.int(nrow(nc), 10000, replace = TRUE),]
-microbenchmark::microbenchmark(
+divN <- 10
+shp1 <- cbind(nc[sample.int(nrow(nc), n / divN, replace = TRUE),],
+  importTable[seq_len(n / divN), ],
+  id = seq_len(n / divN))
+geometryResults <- microbenchmark::microbenchmark(
   bcpImportGeometry = {
-    bcpImport(nc,
-              server = server,
-              database = database,
-              table = 'nc1',
-              overwrite = TRUE,
-              stdout = FALSE)
+    bcpImport(shp1,
+      connectargs = connectArgs,
+      table = 'shp1',
+      overwrite = TRUE,
+      stdout = FALSE,
+      spatialtype = 'geometry',
+      bcpOptions = list("-b", 50000, "-a", 4096, "-m", 0))
+  },
+  odbcImportGeometry = {
     con <- DBI::dbConnect(odbc::odbc(),
-                          driver = 'SQL Server',
-                          server = server,
-                          database = database)
-    sql <- DBI::sqlInterpolate(
-      con,
-      'alter table dbo.nc1 add ObjectID integer primary key identity(1,1);
-       create spatial index nc1_spix on nc1(geom)
-       with ( bounding_box = ( ?xmin, ?ymin, ?xmax, ?ymax ),
-              grids = (medium, medium, medium, medium),
-              cells_per_object = 16);',
-      .dots = st_bbox(nc)
+      driver = driver,
+      server = server,
+      database = database,
+      trusted_connection = 'yes')
+    tableName <- 'shp2'
+    spatialType <- 'geometry'
+    geometryColumn <- 'geom'
+    binaryColumn <- 'geomWkb'
+    srid <- sf::st_crs(nc)$epsg
+    shpBin2 <- data.table(shp1)
+    data.table::set(x = shpBin2, j = binaryColumn,
+      value = blob::new_blob(lapply(sf::st_as_binary(shpBin2[[geometryColumn]]),
+        as.raw)))
+    data.table::set(x = shpBin2, j = geometryColumn, value = NULL)
+    dataTypes <- DBI::dbDataType(con, shpBin2)
+    dataTypes[binaryColumn] <- 'varbinary(max)'
+    DBI::dbWriteTable(conn = con, name = tableName, value = shpBin2,
+      overwrite = TRUE, field.types = dataTypes)
+    DBI::dbExecute(conn = con, sprintf('alter table %1$s add %2$s %3$s;',
+      tableName, geometryColumn, spatialType))
+    DBI::dbExecute(conn = con,
+      sprintf('UPDATE %1$s
+    SET geom = %3$s::STGeomFromWKB([%4$s], %2$d);
+    ALTER TABLE %1$s DROP COLUMN [%4$s];', tableName, srid, spatialType,
+        binaryColumn)
     )
-    DBI::dbExecute(con, sql)
   },
   bcpImportGeography = {
-    bcpImport(nc,
-              server = server,
-              database = database,
-              table = 'nc2',
-              overwrite = TRUE,
-              stdout = FALSE,
-              spatialtype = 'geography')
-    con <- DBI::dbConnect(odbc::odbc(),
-                          driver = 'SQL Server',
-                          server = server,
-                          database = database)
-    sql <- 'alter table dbo.nc2 add ObjectID integer primary key identity(1,1);
-            create spatial index nc2_spix on nc2(geom)
-            using geography_grid
-            with ( grids = (medium, medium, medium, medium),
-                   cells_per_object = 16);'
-    DBI::dbExecute(con, sql)
+    bcpImport(shp1,
+      connectargs = connectArgs,
+      table = 'shp3',
+      overwrite = TRUE,
+      stdout = FALSE,
+      spatialtype = 'geography',
+      bcpOptions = list("-b", 50000, "-a", 4096, "-m", 0))
   },
-  stWriteGeometry = {
-    Sys.setenv('MSSQLSPATIAL_USE_GEOMETRY_COLUMNS' = 'NO')
-    st_write(nc,
-             sprintf(r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)',
-                     server, database),
-             'dbo.nc3',
-             layer_options = c('GEOM_TYPE=geometry', 'LAUNDER=NO',
-                               'GEOMETRY_NAME=geom', 'FID=ObjectID'),
-             append = FALSE)
+  odbcImportGeography = {
     con <- DBI::dbConnect(odbc::odbc(),
-                          driver = 'SQL Server',
-                          server = server,
-                          database = database)
-    DBI::dbExecute(con,
-                   'alter table dbo.nc3 alter column [NAME] varchar(255);
-                    alter table dbo.nc3 alter column [FIPS] varchar(255);')
-    },
-  stWriteGeography = {
-    Sys.setenv('MSSQLSPATIAL_USE_GEOMETRY_COLUMNS' = 'NO')
-    st_write(nc,
-             sprintf(r'(MSSQL:Server=%s;Database=%s;Trusted_Connection=True;)',
-                     server, database),
-             'dbo.nc4',
-             layer_options = c('GEOM_TYPE=geography', 'LAUNDER=NO',
-                               'GEOMETRY_NAME=geom', 'FID=ObjectID'),
-             append = FALSE)
-    con <- DBI::dbConnect(odbc::odbc(),
-                          driver = 'SQL Server',
-                          server = server,
-                          database = database)
-    DBI::dbExecute(con,
-                   'alter table dbo.nc4 alter column [NAME] varchar(255);
-                    alter table dbo.nc4 alter column [FIPS] varchar(255);
-                    update dbo.nc4 SET geom = geom.MakeValid().ReorientObject()
-                    where geom.MakeValid().EnvelopeAngle() > 90;')
+      driver = driver,
+      server = server,
+      database = database,
+      trusted_connection = 'yes')
+    tableName <- 'shp4'
+    spatialType <- 'geography'
+    geometryColumn <- 'geom'
+    binaryColumn <- 'geomWkb'
+    srid <- sf::st_crs(nc)$epsg
+    shpBin4 <- data.table(shp1)
+    data.table::set(x = shpBin4, j = binaryColumn,
+      value = blob::new_blob(lapply(sf::st_as_binary(shpBin4[[geometryColumn]]),
+        as.raw)))
+    data.table::set(x = shpBin4, j = geometryColumn, value = NULL)
+    dataTypes <- DBI::dbDataType(con, shpBin4)
+    dataTypes[binaryColumn] <- 'varbinary(max)'
+    DBI::dbWriteTable(conn = con, name = tableName, value = shpBin4,
+      overwrite = TRUE, field.types = dataTypes)
+    DBI::dbExecute(conn = con, sprintf('alter table %1$s add %2$s %3$s;',
+      tableName, geometryColumn, spatialType))
+    DBI::dbExecute(conn = con,
+      sprintf('UPDATE %1$s
+    SET geom = %3$s::STGeomFromWKB([%4$s], %2$d);
+    ALTER TABLE %1$s DROP COLUMN [%4$s];', tableName, srid, spatialType,
+        binaryColumn)
+    )
+    DBI::dbExecute(conn = con,
+      sprintf(
+        'UPDATE %1$s SET [%2$s] = [%2$s].MakeValid().ReorientObject().MakeValid()
+   WHERE [%2$s].MakeValid().EnvelopeAngle() > 90;',
+        tableName, geometryColumn))
   },
-  times = 30L
+  times = 30L,
+  unit = 'seconds'
 )
+geometryResults
 ```
 
-|expr               |       min|        lq|      mean|    median|       uq|       max| neval|
-|:------------------|---------:|---------:|---------:|---------:|--------:|---------:|-----:|
-|bcpImportGeometry  |  3.837943|  4.029495|  4.167561|  4.108914|  4.28310|  4.617041|    30|
-|bcpImportGeography |  7.536671|  8.848857|  9.062659|  9.032125|  9.31301| 10.307236|    30|
-|stWriteGeometry    | 30.058039| 32.603264| 33.576270| 32.955545| 33.93374| 38.260181|    30|
-|stWriteGeography   | 51.733421| 54.910806| 56.157718| 55.671590| 56.51970| 64.666461|    30|
+|expr                |      min|       lq|     mean|   median|       uq|       max| neval|
+|:-------------------|--------:|--------:|--------:|--------:|--------:|---------:|-----:|
+|bcpImportGeometry   | 18.01451| 19.48747| 20.68834| 20.45136| 21.74212|  26.87033|    30|
+|odbcImportGeometry  | 18.29721| 20.63363| 22.35044| 21.29087| 24.04490|  27.81112|    30|
+|bcpImportGeography  | 71.23260| 75.04588| 82.65286| 76.36985| 96.68469| 102.70909|    30|
+|odbcImportGeography | 73.29818| 76.12481| 84.58432| 77.93419| 97.36155| 107.00186|    30|
 
 *Time in seconds*

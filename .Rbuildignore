@@ -9,3 +9,5 @@
 _pkgdown.yml
 ^pkgdown/
 ^inst/tests$
+TODO.md
+^.lintr$

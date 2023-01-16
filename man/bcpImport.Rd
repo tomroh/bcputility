@@ -6,53 +6,24 @@
 \usage{
 bcpImport(
   x,
-  server,
-  database,
+  connectargs,
   table,
-  driver = "SQL Server",
-  maxerrors = 10,
-  batchsize = 1000,
-  packetsize = 4096,
-  regional = FALSE,
-  trustedconnection = TRUE,
-  username,
-  password,
   fieldterminator = "\\t",
   rowterminator = ifelse(.Platform$OS.type == "windows", "\\r\\n", "\\n"),
   overwrite = FALSE,
   spatialtype = c("geometry", "geography"),
-  azure = FALSE,
+  bcpOptions = list("-b", 1000, "-a", 4096, "-m", 10),
   ...
 )
 }
 \arguments{
 \item{x}{dataframe object or path to file}
 
-\item{server}{the instance of SQL Server to which to connect}
+\item{connectargs}{named list of connection arguments. See \link[bcputility]{makeConnectArgs}.}
 
-\item{database}{specifies the database to connect to}
-
-\item{table}{Name of the source table when exporting from  SQL Server. For specifying the
-schema in the table name see \code{DBI::SQL} or \code{DBI::Id}.}
-
-\item{driver}{name of driver for ODBC connection}
-
-\item{maxerrors}{maximum number of errors allowed}
-
-\item{batchsize}{number of rows to write at a time; 10,000 to 50,000 is a
-starting recommendation}
-
-\item{packetsize}{size of packets to be sent}
-
-\item{regional}{Specifies that currency, date, and time data is bulk copied into SQL Server
-using the regional format defined for the locale setting of the client
-computer}
-
-\item{trustedconnection}{use integrated security, username and password are not required}
-
-\item{username}{login ID}
-
-\item{password}{password for login ID}
+\item{table}{Name of the source table when importing from  SQL Server. For specifying the
+schema in the table name see \code{<schema>.<table>} and if not specified the
+default is "dbo".}
 
 \item{fieldterminator}{character separator for columns}
 
@@ -60,11 +31,11 @@ computer}
 
 \item{overwrite}{Whether to overwrite the table if it exists}
 
-\item{spatialtype}{spatial data type for schema \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+\item{spatialtype}{spatial data type for schema
+\url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 ignored if \code{x} is not an 'sf' object}
 
-\item{azure}{use Azure Active Directory authentication, does not work with integrated
-authentication.}
+\item{bcpOptions}{list of additional options to pass to the 'bcp' utility. See details.}
 
 \item{...}{arguments to pass to \link[base]{system2}}
 }
@@ -72,7 +43,8 @@ authentication.}
 Output from \code{system2}. See \code{...} to redirect output.
 }
 \description{
-A wrapper for a system call to the bcp utility which bulk inserts to SQL Server.
+A wrapper for a system call to the bcp utility which bulk inserts to SQL
+Server.
 }
 \details{
 If x is a dataframe object, \code{data.table::fwrite} is used to write the
@@ -92,19 +64,14 @@ SRID.
 
 To override the default path to the bcp command line utility, set the
 \code{bcputility.bcp.path} option.
-}
-\examples{
-\dontrun{
-set.seed(33)
-x <- data.frame(
-  w = rpois(10, 10),
-  x = rnorm(10),
-  y = sample(LETTERS, 10),
-  z = Sys.time()
-)
-bcpImport(x,
-          server = server,
-          database = database,
-          table = 'mytable')
-}
+To override the default path to the sqlcmd command line utility, set the
+\code{bcputility.sqlcmd.path} option.
+
+The \code{bcpOptions} allows the user to include additional arguments for the
+call to \code{system2}. Please refer to
+\url{https://learn.microsoft.com/en-us/sql/tools/bcp-utility}.
+The default options are set to the defaults for \code{bcp} CLI. \code{-b}
+refers to number of rows to write at a time; 10,000 to 50,000 is a
+starting recommendation. \code{-a} refers to size of packets to be sent in
+bytes. \code{-e} refers to the maximum number of errors before failure.
 }
