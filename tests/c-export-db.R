@@ -1,5 +1,5 @@
 library(bcputility)
-testLocal <- TRUE
+testLocal <- FALSE
 if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   testExport <- function(connectargs) {
     on.exit(
