@@ -11,3 +11,4 @@ _pkgdown.yml
 ^inst/tests$
 TODO.md
 ^.lintr$
+^CRAN-SUBMISSION$
