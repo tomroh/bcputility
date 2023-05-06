@@ -432,7 +432,7 @@ createTable <- function(connectargs, table, coltypes, ...) {
   query <- sprintf(
     'CREATE TABLE %s (%s);',
     quotedTable,
-    paste(sprintf('"%s"', names(coltypes)), coltypes, sep = ' ',
+    paste(sprintf('[%s]', names(coltypes)), coltypes, sep = ' ',
       collapse = ', ')
   )
   sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
