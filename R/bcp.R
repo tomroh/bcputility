@@ -35,6 +35,11 @@
 #' \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 #' ignored if \code{x} is not an 'sf' object
 #'
+#' @param quotetablename
+#'
+#' Whether to enclose schema and table names in brackets in bcp command. May
+#' not be compatible with some configurations.
+#'
 #' @param bcpOptions
 #'
 #' list of additional options to pass to the 'bcp' utility. See details.
@@ -88,6 +93,7 @@ bcpImport <- function(
     '\r\n', '\n'),
   overwrite = FALSE,
   spatialtype = c('geometry', 'geography'),
+  quotetablename = TRUE,
   bcpOptions = list(
     '-b', 1000,
     '-a', 4096,
@@ -141,7 +147,8 @@ bcpImport <- function(
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
                                   '-r', shQuote(rowterminator),
                                   '-c'))
-  bcpArgs <- append(bcpArgs, list(quoteTable(table = table),
+  bcpArgs <- append(bcpArgs, list(
+  if (quotetablename) quoteTable(table = table) else table,
     'in', shQuote(fileName)), after = 0)
   tableExists <-  checkTableExists(connectargs = connectargs,
     table = table)
@@ -526,13 +533,19 @@ readTable <- function(connectargs, table, ...) {
 #' use Azure Active Directory authentication, does not work with integrated
 #' authentication.
 #'
+#' @param quoteidentifiers
+#'
+#' set QUOTED_IDENTIFIERS option to 'ON' for the connection between bcp/sqlcmd
+#' and SQL Server.
+#'
 #' @return
 #'
 #' a list with connection arguments
 #'
 #' @export
 makeConnectArgs <- function(server, database, username, password,
-  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE) {
+  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE,
+  quoteidentifiers = FALSE) {
   if (isTRUE(trustedconnection) && isTRUE(azure)) {
     stop('trustedconnection and azure cannot both be TRUE')
   }
@@ -551,6 +564,10 @@ makeConnectArgs <- function(server, database, username, password,
   if (isTRUE(trustservercert)) {
     connectArgs <- append(x = connectArgs,
       values = list(trustservercert = trustservercert))
+  }
+   if (isTRUE(quoteidentifiers)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(quoteidentifiers = quoteidentifiers))
   }
   connectArgs
 }
@@ -600,14 +617,16 @@ mapConnectArgs <- function(connectargs, utility = c('sqlcmd', 'bcp')
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-C'),
+      trustservercert = '-C',
+      quoteidentifiers = '-I'),
     bcp = list(server = '-S',
       database = '-d',
       trustedconnection = '-T',
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-u'),
+      trustservercert = '-u',
+      quoteidentifiers = '-q'),
     stop('Unsupported utility')
   )
   argSyntax <- argSyntax[names(connectargs)]
