@@ -526,13 +526,19 @@ readTable <- function(connectargs, table, ...) {
 #' use Azure Active Directory authentication, does not work with integrated
 #' authentication.
 #'
+#' @param quoteidentifiers
+#'
+#' set QUOTED_IDENTIFIERS option to 'ON' for the connection between bcp/sqlcmd
+#' and SQL Server.
+#'
 #' @return
 #'
 #' a list with connection arguments
 #'
 #' @export
 makeConnectArgs <- function(server, database, username, password,
-  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE) {
+  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE,
+  quoteidentifiers = FALSE) {
   if (isTRUE(trustedconnection) && isTRUE(azure)) {
     stop('trustedconnection and azure cannot both be TRUE')
   }
@@ -551,6 +557,10 @@ makeConnectArgs <- function(server, database, username, password,
   if (isTRUE(trustservercert)) {
     connectArgs <- append(x = connectArgs,
       values = list(trustservercert = trustservercert))
+  }
+   if (isTRUE(quoteidentifiers)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(quoteidentifiers = quoteidentifiers))
   }
   connectArgs
 }
@@ -600,14 +610,16 @@ mapConnectArgs <- function(connectargs, utility = c('sqlcmd', 'bcp')
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-C'),
+      trustservercert = '-C',
+      quoteidentifiers = '-I'),
     bcp = list(server = '-S',
       database = '-d',
       trustedconnection = '-T',
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-u'),
+      trustservercert = '-u',
+      quoteidentifiers = '-q'),
     stop('Unsupported utility')
   )
   argSyntax <- argSyntax[names(connectargs)]
