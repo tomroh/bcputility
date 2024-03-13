@@ -35,6 +35,11 @@
 #' \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 #' ignored if \code{x} is not an 'sf' object
 #'
+#' @param quotetablename
+#'
+#' Whether to enclose schema and table names in brackets in bcp command. May
+#' not be compatible with some configurations.
+#'
 #' @param bcpOptions
 #'
 #' list of additional options to pass to the 'bcp' utility. See details.
@@ -88,6 +93,7 @@ bcpImport <- function(
     '\r\n', '\n'),
   overwrite = FALSE,
   spatialtype = c('geometry', 'geography'),
+  quotetablename = TRUE,
   bcpOptions = list(
     '-b', 1000,
     '-a', 4096,
@@ -141,7 +147,8 @@ bcpImport <- function(
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
                                   '-r', shQuote(rowterminator),
                                   '-c'))
-  bcpArgs <- append(bcpArgs, list(quoteTable(table = table),
+  bcpArgs <- append(bcpArgs, list(
+  if (quotetablename) quoteTable(table = table) else table,
     'in', shQuote(fileName)), after = 0)
   tableExists <-  checkTableExists(connectargs = connectargs,
     table = table)
