@@ -12,7 +12,8 @@ makeConnectArgs(
   password,
   trustedconnection = TRUE,
   trustservercert = FALSE,
-  azure = FALSE
+  azure = FALSE,
+  quotedidentifiers = FALSE
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ makeConnectArgs(
 
 \item{azure}{use Azure Active Directory authentication, does not work with integrated
 authentication.}
+
+\item{quotedidentifiers}{set QUOTED_IDENTIFIERS option to 'ON' for the connection between bcp/sqlcmd
+and SQL Server.}
 }
 \value{
 a list with connection arguments
