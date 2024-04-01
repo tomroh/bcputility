@@ -143,7 +143,7 @@ bcpImport <- function(
                                   '-r', shQuote(rowterminator),
                                   '-c'))
   bcpArgs <- append(bcpArgs, list(
-    quoteTable(table = table),
+    table = table,
     'in', shQuote(fileName)), after = 0)
   tableExists <-  checkTableExists(connectargs = connectargs, table = table)
   append <- tableExists && isFALSE(overwrite)
