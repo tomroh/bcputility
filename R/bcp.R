@@ -143,7 +143,7 @@ bcpImport <- function(
                                   '-r', shQuote(rowterminator),
                                   '-c'))
   bcpArgs <- append(bcpArgs, list(
-    ifelse(quotedIdentifiers, shQuote(table), quoteTable(table = table)),
+    quoteTable(table = table),
     'in', shQuote(fileName)), after = 0)
   tableExists <-  checkTableExists(connectargs = connectargs, table = table)
   append <- tableExists && isFALSE(overwrite)
@@ -458,10 +458,10 @@ dropTable <- function(connectargs, table, ...) {
 checkTableExists <- function(connectargs, table) {
   sqlcmd <- findUtility('sqlcmd')
   query <- sprintf("
-  IF OBJECT_ID('%s') IS NOT NULL
+  IF OBJECT_ID('%s', 'U') IS NOT NULL
     BEGIN PRINT 1 END
   ELSE
-   BEGIN PRINT 0 END", table)
+   BEGIN PRINT 0 END", unQuoteTable(table))
   sqlcmdArgs <- mapConnectArgs(connectargs = connectargs, utility = 'sqlcmd')
   sqlcmdArgs <- append(sqlcmdArgs, values = list('-Q', shQuote(query)))
   identical(system2(command = sqlcmd, args = sqlcmdArgs, stdout = TRUE)[[1]], '1')
@@ -569,6 +569,17 @@ quoteTable <- function(table) {
       return(x)
     }
     sprintf('[%s]', x)
+  }), collapse = '.')
+}
+unQuoteTable <- function(table) {
+  paste(lapply(strsplit(table, split = '\\.')[[1]], function(x) {
+    if (substring(text = x, first = 1, last = 1) == '[' &&
+        substring(text = x,
+          first = nchar(x),
+          last = nchar(x)) == ']') {
+      return(substring(text = x, first = 2, last = nchar(x) - 1))
+    }
+    x
   }), collapse = '.')
 }
 convertGeoCol <- function(connectargs, table, geometrycol, binarycol,
