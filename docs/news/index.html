@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bcputility</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
       </span>
     </div>
 
@@ -48,7 +48,12 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.0" id="bcputility-040">bcputility 0.4.0<a class="anchor" aria-label="anchor" href="#bcputility-040"></a></h2>
+<h2 class="page-header" data-toc-text="0.4.2" id="bcputility-042">bcputility 0.4.2<a class="anchor" aria-label="anchor" href="#bcputility-042"></a></h2>
+<ul><li><p>Added ability to turn on QUOTED_IDENTIFIERS. This is required for some Microsoft database products. Use the bcp “-q” option.</p></li>
+<li><p>Column names are quoted so that reserved words can be used.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.4.0" id="bcputility-040">bcputility 0.4.0<small>2023-01-16</small><a class="anchor" aria-label="anchor" href="#bcputility-040"></a></h2>
 <ul><li><p>Override/set path to sqlcmd with <code>options(bcputility.sqlcmd.path = "&lt;path-to-sqlcmd&gt;")</code></p></li>
 <li><p>Added <code>bcpVersion</code> and <code>sqlcmdVersion</code> to check versions.</p></li>
 <li><p>Specify tables without schema strictly as a character vector of size 1 e.g. <code>"&lt;schema&gt;.&lt;table&gt;"</code>. The schema and table will be quoted although special characters are not recommended except for “_“.</p></li>
@@ -74,7 +79,7 @@
 <h2 class="page-header" data-toc-text="0.2.0" id="bcputility-020">bcputility 0.2.0<small>2021-08-06</small><a class="anchor" aria-label="anchor" href="#bcputility-020"></a></h2>
 <ul><li><p>set the path to the bcp utility with the bcputility.bcp.path option</p></li>
 <li><p>added links to source code, bug reports, and documentation site</p></li>
-<li><p>rowterminator and fieldterminator are no passed to <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">data.table::fwrite</a></code> if data is in memory</p></li>
+<li><p>rowterminator and fieldterminator are no passed to <code><a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">data.table::fwrite</a></code> if data is in memory</p></li>
 <li><p>Added support for geometry/geography data import for ‘sf’ objects</p></li>
 </ul></div>
     <div class="section level2">
