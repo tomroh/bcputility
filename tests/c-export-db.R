@@ -1,5 +1,5 @@
 library(bcputility)
-testLocal <- FALSE
+testLocal <- TRUE
 if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   testExport <- function(connectargs) {
     on.exit(
@@ -72,4 +72,5 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   database <- Sys.getenv('MSSQL_DB')
   connectArgs <- makeConnectArgs(server = server, database = database)
   testExport(connectargs = connectArgs)
+  print('All export tests passed')
 }

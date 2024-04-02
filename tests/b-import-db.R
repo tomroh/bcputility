@@ -237,4 +237,5 @@ if (identical(Sys.getenv('NOT_CRAN'), 'true') && isTRUE(testLocal)) {
   database <- Sys.getenv('MSSQL_DB')
   connectArgs <- makeConnectArgs(server = server, database = database)
   testImport(connectargs = connectArgs)
+  print('All import tests passed')
 }
