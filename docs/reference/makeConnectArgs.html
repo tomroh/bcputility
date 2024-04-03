@@ -20,7 +20,7 @@ sqlcmd options"><meta property="og:image" content="/logo.png"><!-- mathjax --><s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bcputility</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
       </span>
     </div>
 
@@ -65,7 +65,8 @@ sqlcmd options</p>
 <span>  <span class="va">password</span>,</span>
 <span>  trustedconnection <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  trustservercert <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  azure <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  azure <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quotedidentifiers <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,6 +99,11 @@ sqlcmd options</p>
 <dt>azure</dt>
 <dd><p>use Azure Active Directory authentication, does not work with integrated
 authentication.</p></dd>
+
+
+<dt>quotedidentifiers</dt>
+<dd><p>set QUOTED_IDENTIFIERS option to 'ON' for the connection between bcp/sqlcmd
+and SQL Server.</p></dd>
 
 </dl></div>
     <div id="value">

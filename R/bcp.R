@@ -105,6 +105,7 @@ bcpImport <- function(
   bcp <- findUtility('bcp')
   # syntax differs for the two utilities
   bcpArgs <- mapConnectArgs(connectargs = connectargs, utility = 'bcp')
+  quotedIdentifiers <- connectargs[['quotedidentifiers']]
   isSpatial <- methods::is(x, 'sf')
   if (methods::is(x, 'data.frame')) {
     tmp <- tempfile(fileext = '.dat')
@@ -141,10 +142,10 @@ bcpImport <- function(
   bcpArgs <- append(bcpArgs, list('-t', shQuote(fieldterminator),
                                   '-r', shQuote(rowterminator),
                                   '-c'))
-  bcpArgs <- append(bcpArgs, list(quoteTable(table = table),
+  bcpArgs <- append(bcpArgs, list(
+    table = table,
     'in', shQuote(fileName)), after = 0)
-  tableExists <-  checkTableExists(connectargs = connectargs,
-    table = table)
+  tableExists <-  checkTableExists(connectargs = connectargs, table = table)
   append <- tableExists && isFALSE(overwrite)
   if (isFALSE(append)) {
     # guess sql server data types
@@ -163,8 +164,8 @@ bcpImport <- function(
       }
     }
     # create empty table
-    createOutput <- createTable(connectargs = connectargs,
-      table = table, coltypes = dbTypes, stderr = TRUE)
+    createOutput <- createTable(connectargs = connectargs, table = table,
+      coltypes = dbTypes, stderr = TRUE)
     if (length(createOutput) != 0) {
       stop(paste(createOutput, collapse = ' '))
     }
@@ -432,10 +433,11 @@ createTable <- function(connectargs, table, coltypes, ...) {
   query <- sprintf(
     'CREATE TABLE %s (%s);',
     quotedTable,
-    paste(names(coltypes), coltypes, sep = ' ', collapse = ', ')
+    paste(sprintf('[%s]', names(coltypes)), coltypes, sep = ' ',
+      collapse = ', ')
   )
-  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
-    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  sqlcmdArgs <- mapConnectArgs(connectargs = connectargs, utility = 'sqlcmd')
+  sqlcmdArgs <- append(sqlcmdArgs, values = list('-Q', shQuote(query)))
   system2(command = sqlcmd, args = sqlcmdArgs, ...)
 }
 #' @rdname createTable
@@ -446,8 +448,8 @@ dropTable <- function(connectargs, table, ...) {
   sqlcmd <- findUtility('sqlcmd')
   quotedTable <- quoteTable(table)
   query <- sprintf('DROP TABLE %s;', quotedTable)
-  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
-    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
+  sqlcmdArgs <- mapConnectArgs(connectargs = connectargs, utility = 'sqlcmd')
+  sqlcmdArgs <- append(sqlcmdArgs, values = list('-Q', shQuote(query)))
   system2(command = sqlcmd, args = sqlcmdArgs, ...)
 }
 #' @rdname createTable
@@ -456,21 +458,14 @@ dropTable <- function(connectargs, table, ...) {
 #'
 checkTableExists <- function(connectargs, table) {
   sqlcmd <- findUtility('sqlcmd')
-  # IF OBJECT_ID('*objectName*', 'U') IS NOT NULL
-  quotedTable <- quoteTable(table)
-  quotedTable <- strsplit(x = quotedTable, split = '\\.')[[1]]
-  if (length(quotedTable) > 2) {
-    stop('Only `<table>` and `<schema>.<table>` are supported for table
-      argument.')
-  }
-  if (length(quotedTable) < 2) {
-    quotedTable <- append(quotedTable, '[dbo]', after = 0)
-  }
-  query <- sprintf('EXECUTE sp_tables @table_name = %s, @table_owner = %s',
-    quotedTable[2], quotedTable[1])
-  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
-    utility = 'sqlcmd'), values = list('-Q', shQuote(query)))
-  system2(command = sqlcmd, args = sqlcmdArgs, stdout = TRUE)[[3]] != ''
+  query <- sprintf("
+  IF OBJECT_ID('%s', 'U') IS NOT NULL
+    BEGIN PRINT 1 END
+  ELSE
+   BEGIN PRINT 0 END", unQuoteTable(table))
+  sqlcmdArgs <- mapConnectArgs(connectargs = connectargs, utility = 'sqlcmd')
+  sqlcmdArgs <- append(sqlcmdArgs, values = list('-Q', shQuote(query)))
+  identical(system2(command = sqlcmd, args = sqlcmdArgs, stdout = TRUE)[[1]], '1')
 }
 readTable <- function(connectargs, table, ...) {
   sqlcmd <- findUtility('sqlcmd')
@@ -478,8 +473,8 @@ readTable <- function(connectargs, table, ...) {
   query <- sprintf('SET NOCOUNT ON; SELECT * FROM %s;', quotedTable)
   queryHeaders <- sprintf('SET NOCOUNT ON; SELECT TOP 0 * FROM %s;',
     quotedTable)
-  sqlcmdArgs <- append(mapConnectArgs(connectargs = connectargs,
-    utility = 'sqlcmd'),
+  sqlcmdArgs <- mapConnectArgs(connectargs = connectargs, utility = 'sqlcmd')
+  sqlcmdArgs <- append(sqlcmdArgs,
     values = list(
       '-s', shQuote(','),
       '-W',
@@ -526,13 +521,19 @@ readTable <- function(connectargs, table, ...) {
 #' use Azure Active Directory authentication, does not work with integrated
 #' authentication.
 #'
+#' @param quotedidentifiers
+#'
+#' set QUOTED_IDENTIFIERS option to 'ON' for the connection between bcp/sqlcmd
+#' and SQL Server.
+#'
 #' @return
 #'
 #' a list with connection arguments
 #'
 #' @export
 makeConnectArgs <- function(server, database, username, password,
-  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE) {
+  trustedconnection = TRUE, trustservercert = FALSE, azure = FALSE,
+  quotedidentifiers = FALSE) {
   if (isTRUE(trustedconnection) && isTRUE(azure)) {
     stop('trustedconnection and azure cannot both be TRUE')
   }
@@ -552,6 +553,10 @@ makeConnectArgs <- function(server, database, username, password,
     connectArgs <- append(x = connectArgs,
       values = list(trustservercert = trustservercert))
   }
+   if (isTRUE(quotedidentifiers)) {
+    connectArgs <- append(x = connectArgs,
+      values = list(quotedidentifiers = quotedidentifiers))
+  }
   connectArgs
 }
 
@@ -565,6 +570,17 @@ quoteTable <- function(table) {
       return(x)
     }
     sprintf('[%s]', x)
+  }), collapse = '.')
+}
+unQuoteTable <- function(table) {
+  paste(lapply(strsplit(table, split = '\\.')[[1]], function(x) {
+    if (substring(text = x, first = 1, last = 1) == '[' &&
+        substring(text = x,
+          first = nchar(x),
+          last = nchar(x)) == ']') {
+      return(substring(text = x, first = 2, last = nchar(x) - 1))
+    }
+    x
   }), collapse = '.')
 }
 convertGeoCol <- function(connectargs, table, geometrycol, binarycol,
@@ -600,14 +616,16 @@ mapConnectArgs <- function(connectargs, utility = c('sqlcmd', 'bcp')
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-C'),
+      trustservercert = '-C',
+      quotedidentifiers = '-I'),
     bcp = list(server = '-S',
       database = '-d',
       trustedconnection = '-T',
       username = '-U',
       password = '-P',
       azure = '-G',
-      trustservercert = '-u'),
+      trustservercert = '-u',
+      quotedidentifiers = '-q'),
     stop('Unsupported utility')
   )
   argSyntax <- argSyntax[names(connectargs)]

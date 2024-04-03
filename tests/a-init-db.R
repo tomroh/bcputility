@@ -6,7 +6,7 @@ library(bcputility)
 # variables MSSQL_SERVER and MSSQL_DB or modify the `makeConnectArgs` function
 # below. It is best to `source` this file from the package home directory.
 
-# Writes the data to SQL Server if TRUES
+# Writes the data to SQL Server if TRUE
 initDB <- FALSE
 # This should never need to be TRUE as the internall R data is already contained
 # in the package.

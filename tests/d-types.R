@@ -40,3 +40,4 @@ testTypeMapping <- function() {
     stopifnot()
 }
 testTypeMapping()
+print('All data type tests passed')
