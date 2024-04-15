@@ -113,7 +113,7 @@ bcpImport <- function(
     if (isSpatial) {
       spatialtype <- match.arg(spatialtype)
       srid <- sf::st_crs(x)$epsg
-      if (is.null(srid) || !is.numeric(srid)) {
+      if (is.null(srid) || !is.numeric(srid) || is.na(srid)) {
         stop('Only EPSGs are supported for SQL Server SRIDs.
           Check with sf::st_crs and change projection with sf::st_transform.')
       }
