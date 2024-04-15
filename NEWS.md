@@ -1,4 +1,6 @@
-# bcputility 0.4.2
+# bcputility 0.4.3
+
+* An error is now thrown for cases where a projection has an EPSG that is `NA`.
 
 * Added ability to turn on QUOTED_IDENTIFIERS. This is required for some 
 Microsoft database products. Use the bcp "-q" option.
