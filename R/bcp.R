@@ -119,7 +119,7 @@ bcpImport <- function(
       }
       geometryCol <- attr(x, 'sf_column')
       binaryCol <- sprintf('%sWkb', geometryCol)
-      data.table::setDT(x)
+      x <- data.table::data.table(x)
       data.table::set(x = x, j = binaryCol,
         value = sf::st_as_binary(x[[geometryCol]], hex = TRUE))
       data.table::set(x = x, j = geometryCol, value = NULL)
