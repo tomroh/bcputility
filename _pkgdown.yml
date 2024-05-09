@@ -1,11 +1,19 @@
-#$url: https://bcputility.roh.engineering
+url: https://bcputility.delveds.com
 authors:
   Thomas Roh:
-    href: https://roh.engineering/about
+    href: mailto:thomas.roh@delveds.com
 template:
-  params:
-    bootswatch: readable
-    opengraph:
-      twitter:
-        creator: "@rstatengineer"
-        card: summary_large_image
+  bootstrap: 5
+  bootswatch: litera
+  bslib:
+    base_font: {google: "Ubuntu"}
+    heading_font: {google: "Raleway"}
+    code_font: {google: "Fira Code"}
+  includes:
+    after_navbar: '<a href="https://delveds.com"><img src="https://delveds.com/assets/img/delve-logo-black.svg" width=85 class="ms-2"></a>'
+
+footer:
+  structure:
+    left: developed
+  components:
+    developed: "Developed by [Delve DS](https://delveds.com)."

@@ -1,6 +1,9 @@
-pandoc: 3.1.1
+pandoc: 3.1.13
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-04-02T13:57Z
+last_built: 2024-05-09T00:30Z
+urls:
+  reference: https://bcputility.delveds.com/reference
+  article: https://bcputility.delveds.com/articles
 
