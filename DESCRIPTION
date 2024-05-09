@@ -11,5 +11,5 @@ SystemRequirements: bcp Utility
 Depends: R (>= 3.5.0)
 Imports: data.table, sf, methods
 Suggests: blob
-URL: https://bcputility.roh.engineering, https://github.com/tomroh/bcputility
+URL: https://bcputility.delveds.com, https://github.com/tomroh/bcputility
 BugReports: https://github.com/tomroh/bcputility/issues
