@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://bcputility.delveds.com/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.delveds.com/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.delveds.com/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.delveds.com/index.html</loc>
+  </url>
+  <url>
     <loc>https://bcputility.delveds.com/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://bcputility.delveds.com/reference/bcpImport.html</loc>
+    <loc>https://bcputility.delveds.com/reference/bcpExport.html</loc>
   </url>
   <url>
-    <loc>https://bcputility.delveds.com/reference/bcpExport.html</loc>
+    <loc>https://bcputility.delveds.com/reference/bcpImport.html</loc>
   </url>
   <url>
     <loc>https://bcputility.delveds.com/reference/SQLServerCLIVersions.html</loc>
@@ -22,21 +34,9 @@
     <loc>https://bcputility.delveds.com/reference/mapDataTypes.html</loc>
   </url>
   <url>
-    <loc>https://bcputility.delveds.com/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bcputility.delveds.com/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://bcputility.delveds.com/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://bcputility.delveds.com/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://bcputility.delveds.com/index.html</loc>
-  </url>
-  <url>
     <loc>https://bcputility.delveds.com/404.html</loc>
+  </url>
+  <url>
+    <loc>https://bcputility.delveds.com/news/index.html</loc>
   </url>
 </urlset>
