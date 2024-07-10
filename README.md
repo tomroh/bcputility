@@ -1,4 +1,4 @@
-# bcputility <a href='https://bcputility.roh.engineering'><img src='man/figures/logo.png' align="right" height="104" /></a>
+# bcputility <a href='https://bcputility.delveds.com'><img src='man/figures/logo.png' align="right" height="104" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/bcputility)](https://CRAN.R-project.org/package=bcputility)
@@ -20,6 +20,11 @@ improves performance of large writes by using bulk inserts.
 An export function is provided for convenience, but likely will not significantly
 improve performance over other methods.
 
+## Prerequisites
+
+The system dependencies can be downloaded and installed from 
+[Microsoft](https://learn.microsoft.com/en-us/sql/tools/bcp-utility#download-the-latest-version-of-the-bcp-utility). 
+It is recommended to add `bcp` and `sqlcmd` to the system path. 
 
 ## Installation
 
@@ -36,11 +41,36 @@ Install the development version with:
 devtools::install_github("tomroh/bcputility")
 ```
 
-If *bcp* and *sqlcmd* is not on the system path or you want to override the default, set the option with the full file path:
+To check if the prerequisite binaries are on the path: 
+
+```r
+bcpVersion()
+sqlcmdVersion()
+```
+
+If `bcp` and `sqlcmd` is not on the system path or you want to override the default, set the option with the full file path:
 
 ```r
 options(bcputility.bcp.path = "<path-to-bcp>")
 options(bcputility.sqlcmd.path = "<path-to-sqlcmd>")
+```
+
+## Usage
+
+Trusted Connection (default):
+
+```r
+x <- read.csv("<file.csv>")
+connectArgs <- makeConnectArgs(server = "<server>", database = "<database>")
+bcpImport(x = x, connectargs = connectArgs, table = "<table>")
+```
+
+SQL Authentication:
+
+```r
+connectArgs <- makeConnectArgs(server = "<server>", database = "<database>",
+  username = "<username>", password = "<password>")
+bcpImport(x = x, connectargs = connectArgs, table = table)
 ```
 
 ## Benchmarks

@@ -1,3 +1,7 @@
+# bcputility 0.4.4
+
+* Updated readme to clarify dependencies and provide quick start examples.
+
 # bcputility 0.4.3
 
 * An error is now thrown for cases where a projection has an EPSG that is `NA`.
