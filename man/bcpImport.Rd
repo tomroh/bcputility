@@ -74,4 +74,8 @@ The default options are set to the defaults for \code{bcp} CLI. \code{-b}
 refers to number of rows to write at a time; 10,000 to 50,000 is a
 starting recommendation. \code{-a} refers to size of packets to be sent in
 bytes. \code{-e} refers to the maximum number of errors before failure.
+
+If a \code{bcpOptions} option has a text argument such as a file path, it
+is recommended to use \code{shQuote} to ensure proper handling of spaces /
+special characters for the system call.
 }

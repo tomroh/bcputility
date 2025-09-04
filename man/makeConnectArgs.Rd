@@ -27,7 +27,8 @@ makeConnectArgs(
 
 \item{trustedconnection}{use integrated security, username and password are not required}
 
-\item{trustservercert}{trust the server certificate}
+\item{trustservercert}{trust the server certificate, must be \code{FALSE} for 'bcp' utility
+versions that are less than 18.0}
 
 \item{azure}{use Azure Active Directory authentication, does not work with integrated
 authentication.}

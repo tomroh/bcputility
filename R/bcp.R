@@ -73,6 +73,10 @@
 #' starting recommendation. \code{-a} refers to size of packets to be sent in
 #' bytes. \code{-e} refers to the maximum number of errors before failure.
 #'
+#' If a \code{bcpOptions} option has a text argument such as a file path, it
+#' is recommended to use \code{shQuote} to ensure proper handling of spaces /
+#' special characters for the system call.
+#'
 #' @return
 #'
 #' Output from \code{system2}. See \code{...} to redirect output.
@@ -514,7 +518,8 @@ readTable <- function(connectargs, table, ...) {
 #'
 #' @param trustservercert
 #'
-#' trust the server certificate
+#' trust the server certificate, must be \code{FALSE} for 'bcp' utility
+#' versions that are less than 18.0
 #'
 #' @param azure
 #'
