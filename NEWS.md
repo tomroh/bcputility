@@ -1,4 +1,9 @@
-# bcputility 0.4.4
+# bcputility 0.4.6
+
+* Added documentation for bcp versions that do not support `trustservercert`
+
+* Updated documentation for bcpOptions so it is clear how to use command line
+arguments that have spaces.
 
 * Updated readme to clarify dependencies and provide quick start examples.
 

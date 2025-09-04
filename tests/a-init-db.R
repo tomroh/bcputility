@@ -8,7 +8,7 @@ library(bcputility)
 
 # Writes the data to SQL Server if TRUE
 initDB <- FALSE
-# This should never need to be TRUE as the internall R data is already contained
+# This should never need to be TRUE as the internal R data is already contained
 # in the package.
 initRData <- FALSE
 if (identical(Sys.getenv("NOT_CRAN"), "true")) {
