@@ -32,7 +32,7 @@
 #' @param spatialtype
 #'
 #' spatial data type for schema
-#' \url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+#' \url{https://learn.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 #' ignored if \code{x} is not an 'sf' object
 #'
 #' @param bcpOptions

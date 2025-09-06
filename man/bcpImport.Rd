@@ -32,7 +32,7 @@ default is "dbo".}
 \item{overwrite}{Whether to overwrite the table if it exists}
 
 \item{spatialtype}{spatial data type for schema
-\url{https://docs.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
+\url{https://learn.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-types-overview},
 ignored if \code{x} is not an 'sf' object}
 
 \item{bcpOptions}{list of additional options to pass to the 'bcp' utility. See details.}

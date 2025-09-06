@@ -2,7 +2,7 @@ pandoc: '3.4'
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-09-04T20:48Z
+last_built: 2025-09-06T16:31Z
 urls:
   reference: https://bcputility.delveds.com/reference
   article: https://bcputility.delveds.com/articles
