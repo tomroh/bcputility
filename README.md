@@ -10,7 +10,7 @@
 
 
 **bcputility** is a wrapper for the command line utility program from SQL Server 
-that does bulk imports/exports. The package assumes that [bcp](https://docs.microsoft.com/en-us/sql/tools/bcp-utility)
+that does bulk imports/exports. The package assumes that [bcp](https://learn.microsoft.com/en-us/sql/tools/bcp-utility)
 is already installed and is on the system search path. For large inserts to SQL 
 Server over an ODBC connection (e.g. with the 
 "[DBI](https://dbi.r-dbi.org/)" package), writes can take a very long time as 
